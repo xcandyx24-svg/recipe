@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yukiko's Kitchen — 我が家のレパートリー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+JP:wght@300;400;500;600&family=Shippori+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Variables ─────────────────────────────────────────── */
+:root{
+  --bg:#F7F3ED;            /* 生成り */
+  --bg2:#EDE6DA;
+  --paper:#FBF8F3;
+  --ink:#1F1A14;           /* 墨 */
+  --ink2:#3A322A;
+  --mut:#7D7066;
+  --fnt:#B8A99B;
+  --line:rgba(31,26,20,.08);
+  --line2:rgba(31,26,20,.16);
+  --accent:#8B6F47;        /* 黄土 */
+  --accent-d:#6B523A;
+  --accent-l:#E8DCC8;
+  --green:#5C7853;         /* 利休 */
+  --green-l:#E2E8DA;
+  --red:#9B3E3E;           /* 朱 */
+  --red-l:#F0DDD8;
+  --gold:#B89968;
+  --r-s:6px;--r-m:10px;--r-l:16px;--r-xl:24px;
+  --nav-h:62px;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+  font-size:15px;line-height:1.75;color:var(--ink);
+  background:var(--bg);min-height:100vh;
+  font-feature-settings:"palt";
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+ul,ol{list-style:none}
+input,select{font-family:inherit}
+
+/* 和紙風テクスチャ */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(circle at 20% 30%,rgba(139,111,71,.04) 0,transparent 40%),
+    radial-gradient(circle at 80% 70%,rgba(92,120,83,.03) 0,transparent 40%);
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+.container{max-width:1180px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+.page{display:none;padding-top:var(--nav-h);min-height:100vh}
+.page.active{display:block;animation:fadeUp .42s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── Nav ───────────────────────────────────────────────── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);
+  background:rgba(247,243,237,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;transition:box-shadow .3s;
+}
+.nav.scrolled{box-shadow:0 1px 24px rgba(31,26,20,.06)}
+.nav-inner{width:100%;max-width:1180px;margin:0 auto;padding:0 28px;display:flex;align-items:center}
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:500;
+  color:var(--ink);letter-spacing:.04em;margin-right:auto;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-logo .jp{font-family:'Shippori Mincho',serif;font-size:.95rem;color:var(--mut);font-weight:400;letter-spacing:.15em}
+.nav-logo .em{color:var(--accent);font-style:italic}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{
+  padding:8px 16px;border-radius:var(--r-s);
+  font-size:.86rem;font-weight:500;color:var(--mut);
+  transition:color .2s,background .2s;cursor:pointer;white-space:nowrap;
+  font-family:'Shippori Mincho',serif;letter-spacing:.05em;
+}
+.nav-link:hover{color:var(--ink);background:var(--line)}
+.nav-link.active{color:var(--ink);background:var(--accent-l)}
+
+/* ── Photo placeholders (和モダン) ────────────────────── */
+.ph{position:relative;overflow:hidden}
+.ph::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.02)}
+.ph-emoji{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:3rem;opacity:.32;user-select:none;z-index:1;
+  filter:saturate(.7);
+}
+.ph-washoku  {background:linear-gradient(145deg,#5C7853,#8FA582)}
+.ph-chuka    {background:linear-gradient(145deg,#9B3E3E,#C26B5C)}
+.ph-yoshoku  {background:linear-gradient(145deg,#7870A0,#A095BD)}
+.ph-rice     {background:linear-gradient(145deg,#B08838,#D4B068)}
+.ph-soup     {background:linear-gradient(145deg,#3A8090,#6FA8B5)}
+.ph-side     {background:linear-gradient(145deg,#6B9E58,#9BBA85)}
+.ph-other    {background:linear-gradient(145deg,#7A6B64,#A89A92)}
+
+/* ── Page Header (シンプル版) ────────────────────────── */
+.page-header{
+  background:var(--paper);border-bottom:1px solid var(--line);
+  padding:28px 0 22px;
+}
+.ph-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.ph-title{
+  font-family:'Shippori Mincho',serif;font-size:1.5rem;font-weight:500;
+  color:var(--ink);letter-spacing:.04em;margin-bottom:4px;
+}
+.ph-sub{font-size:.85rem;color:var(--mut);letter-spacing:.02em}
+.ph-sub span{font-family:'Cormorant Garamond',serif;font-size:1.1em;color:var(--accent-d);font-weight:500}
+.ph-actions{display:flex;gap:10px}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn-primary{
+  background:var(--ink);color:var(--paper);
+  padding:13px 30px;border-radius:var(--r-s);
+  font-size:.9rem;font-weight:500;letter-spacing:.05em;
+  transition:background .2s,transform .15s;
+  font-family:'Shippori Mincho',serif;cursor:pointer;border:none;
+}
+.btn-primary:hover{background:var(--accent-d);transform:translateY(-1px)}
+.btn-sm{padding:8px 18px;font-size:.84rem}
+.btn-outline{
+  background:transparent;color:var(--ink);
+  padding:13px 30px;border-radius:var(--r-s);
+  font-size:.9rem;font-weight:500;letter-spacing:.05em;
+  border:1.5px solid var(--line2);
+  transition:border-color .2s,color .2s,background .2s;
+  font-family:'Shippori Mincho',serif;cursor:pointer;
+}
+.btn-outline:hover{border-color:var(--ink);background:var(--paper)}
+.btn-ghost{
+  background:transparent;border:1.5px solid var(--line2);
+  border-radius:var(--r-s);padding:7px 14px;font-size:.82rem;
+  color:var(--mut);cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── Section ───────────────────────────────────────────── */
+.section{padding:56px 0}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.section-title{
+  font-family:'Shippori Mincho',serif;font-size:1.4rem;font-weight:500;
+  letter-spacing:.04em;color:var(--ink);
+}
+.section-title .en{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-weight:400;color:var(--accent);margin-left:10px;font-size:.85em;
+}
+.section-link{font-size:.85rem;color:var(--accent);font-weight:500;cursor:pointer;font-family:'Shippori Mincho',serif}
+.section-link:hover{text-decoration:underline}
+.label{
+  font-size:.72rem;font-weight:500;letter-spacing:.14em;
+  color:var(--mut);margin-bottom:14px;display:block;
+  font-family:'Shippori Mincho',serif;text-transform:uppercase;
+}
+
+/* ── Category pills ────────────────────────────────────── */
+.cat-pills{display:flex;gap:8px;flex-wrap:wrap}
+.cat-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 16px;border-radius:100px;
+  border:1.5px solid var(--line2);background:var(--paper);
+  font-size:.83rem;font-weight:500;cursor:pointer;
+  transition:all .2s;color:var(--mut);
+  font-family:'Shippori Mincho',serif;letter-spacing:.04em;
+}
+.cat-pill:hover{border-color:var(--accent);color:var(--accent)}
+.cat-pill.active{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.cat-pill .dot{width:7px;height:7px;border-radius:50%}
+.cat-pill .count{font-size:.72rem;opacity:.7;margin-left:2px}
+
+/* ── Recipe Grid & Card ────────────────────────────────── */
+.recipe-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));
+  gap:22px;
+}
+.recipe-card{
+  background:var(--paper);border-radius:var(--r-l);overflow:hidden;
+  border:1px solid var(--line);cursor:pointer;position:relative;
+  transition:transform .24s var(--ease),box-shadow .24s var(--ease),border-color .24s;
+}
+.recipe-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 14px 36px rgba(31,26,20,.08);
+  border-color:var(--line2);
+}
+.card-photo{aspect-ratio:16/10;position:relative}
+.card-photo .ph-emoji{font-size:2.6rem}
+.card-cat{
+  position:absolute;bottom:12px;left:12px;z-index:2;
+  font-size:.7rem;font-weight:500;padding:4px 11px;
+  border-radius:100px;background:rgba(251,248,243,.95);
+  color:var(--ink);font-family:'Shippori Mincho',serif;
+  letter-spacing:.05em;
+}
+.card-fav{
+  position:absolute;top:10px;right:10px;z-index:2;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(251,248,243,.92);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,transform .15s;
+  border:1px solid var(--line);
+}
+.card-fav:hover{background:var(--paper);transform:scale(1.08)}
+.card-fav svg{width:15px;height:15px;fill:none;stroke:var(--mut);stroke-width:1.8}
+.card-fav.on svg{fill:var(--red);stroke:var(--red)}
+.card-body{padding:16px 18px 18px}
+.card-name{
+  font-family:'Shippori Mincho',serif;font-size:1.02rem;font-weight:500;
+  margin-bottom:6px;line-height:1.5;letter-spacing:.02em;
+}
+.card-sub{font-size:.78rem;color:var(--mut);margin-bottom:13px;line-height:1.6;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-diff{display:flex;gap:3px}
+.diff-dot{width:6px;height:6px;border-radius:50%;background:var(--fnt)}
+.diff-dot.on{background:var(--accent)}
+.card-time{font-size:.78rem;color:var(--mut);font-family:'Cormorant Garamond',serif;font-weight:500}
+.card-time::before{content:'⏱ ';opacity:.5}
+.season-badge{
+  font-size:.65rem;background:var(--green-l);color:var(--green);
+  padding:2px 8px;border-radius:4px;font-weight:500;
+  font-family:'Shippori Mincho',serif;letter-spacing:.05em;
+}
+
+/* ── Filter Bar ────────────────────────────────────────── */
+.filter-bar{
+  position:sticky;top:var(--nav-h);z-index:50;
+  background:rgba(247,243,237,.95);
+  border-bottom:1px solid var(--line);padding:13px 0;
+  backdrop-filter:blur(12px);
+}
+.filter-inner{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filter-search{
+  flex:1;min-width:200px;height:40px;padding:0 14px;
+  border:1.5px solid var(--line2);border-radius:var(--r-s);
+  font-size:.88rem;background:var(--paper);color:var(--ink);
+  outline:none;transition:border-color .2s;
+}
+.filter-search:focus{border-color:var(--accent)}
+.filter-search::placeholder{color:var(--fnt)}
+.filter-select{
+  height:40px;padding:0 32px 0 14px;
+  border:1.5px solid var(--line2);border-radius:var(--r-s);
+  font-size:.85rem;background:var(--paper);color:var(--ink);
+  outline:none;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%237D7066' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+.filter-count{
+  font-size:.82rem;color:var(--mut);white-space:nowrap;
+  font-family:'Shippori Mincho',serif;
+}
+.no-results{text-align:center;padding:80px 0;color:var(--mut);font-family:'Shippori Mincho',serif}
+
+/* ── Modal ─────────────────────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(31,26,20,.55);backdrop-filter:blur(5px);
+  overflow-y:auto;padding:36px 16px;
+}
+.modal-overlay.open{
+  display:flex;justify-content:center;align-items:flex-start;
+  animation:fadeIn .25s var(--ease);
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--paper);max-width:780px;width:100%;
+  border-radius:var(--r-xl);overflow:hidden;
+  animation:slideUp .35s var(--ease);position:relative;
+  border:1px solid var(--line);
+  box-shadow:0 28px 80px rgba(31,26,20,.25);
+}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.modal-photo{
+  height:240px;position:relative;
+  display:flex;align-items:flex-end;padding:24px 30px;
+}
+.modal-photo .ph-emoji{font-size:5rem;opacity:.4}
+.modal-photo-content{position:relative;z-index:2;color:var(--paper)}
+.modal-photo-cat{
+  display:inline-block;font-size:.72rem;font-weight:500;
+  padding:4px 12px;border-radius:100px;
+  background:rgba(251,248,243,.95);color:var(--ink);
+  margin-bottom:10px;font-family:'Shippori Mincho',serif;letter-spacing:.05em;
+}
+.modal-photo h2{
+  font-family:'Shippori Mincho',serif;font-size:1.9rem;font-weight:500;
+  line-height:1.3;text-shadow:0 2px 12px rgba(0,0,0,.2);letter-spacing:.02em;
+}
+.modal-h2{cursor:pointer;transition:opacity .15s}
+.modal-h2:hover{opacity:.85}
+.edit-icon{
+  font-size:.65em;opacity:.55;margin-left:8px;
+  font-weight:400;font-family:'Cormorant Garamond',serif;
+  vertical-align:middle;
+}
+.cat-select{
+  padding:5px 10px;border:1px solid var(--line2);border-radius:5px;
+  font-family:inherit;font-size:.88rem;background:var(--paper);
+  color:var(--ink);outline:none;cursor:pointer;
+}
+.cat-select:focus{border-color:var(--accent)}
+.btn-danger{color:var(--red) !important}
+.btn-danger:hover{border-color:var(--red) !important;background:rgba(155,62,62,.06) !important}
+
+/* AI推測中ローディング */
+.ai-loading{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;margin-bottom:12px;
+  background:var(--accent-l);border-radius:var(--r-m);
+  border-left:3px solid var(--accent);
+  font-family:'Shippori Mincho',serif;font-size:.88rem;
+  color:var(--accent-d);letter-spacing:.04em;
+}
+.ai-spinner{
+  width:18px;height:18px;border:2px solid var(--accent);
+  border-top-color:transparent;border-radius:50%;
+  animation:spin .8s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.modal-close{
+  position:absolute;top:18px;right:18px;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(251,248,243,.92);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;z-index:5;transition:background .2s;
+}
+.modal-close:hover{background:var(--paper)}
+.modal-close svg{width:16px;height:16px;stroke:var(--ink);stroke-width:2}
+.modal-body{padding:28px 32px 36px}
+.modal-meta{
+  display:flex;gap:24px;flex-wrap:wrap;padding-bottom:20px;
+  border-bottom:1px solid var(--line);margin-bottom:24px;
+}
+.modal-meta-item{display:flex;align-items:center;gap:8px;font-size:.86rem;color:var(--ink2)}
+.modal-meta-item .lb{color:var(--mut);font-family:'Shippori Mincho',serif;font-size:.78rem;letter-spacing:.05em}
+.modal-cols{display:grid;grid-template-columns:1fr 1.2fr;gap:32px}
+.modal-section h3{
+  font-family:'Shippori Mincho',serif;font-size:1rem;font-weight:600;
+  margin-bottom:14px;color:var(--ink);letter-spacing:.04em;
+  display:flex;align-items:center;gap:10px;
+}
+.modal-section h3::before{
+  content:'';width:18px;height:1px;background:var(--accent);
+}
+.ing-list{display:flex;flex-direction:column;gap:6px}
+.ing-row{
+  display:grid;grid-template-columns:1fr 70px 80px 26px;gap:6px;
+  align-items:center;padding:4px 0;
+  border-bottom:1px dotted var(--line);
+}
+.ing-row:last-of-type{border-bottom:none}
+.ing-name-input,.ing-qty-input,.ing-unit-input{
+  padding:6px 8px;border:1px solid var(--line2);border-radius:5px;
+  font-family:inherit;font-size:.85rem;background:var(--paper);
+  color:var(--ink);outline:none;transition:border-color .15s;
+  min-width:0;
+}
+.ing-name-input:focus,.ing-qty-input:focus,.ing-unit-input:focus{
+  border-color:var(--accent);
+}
+.ing-qty-input{text-align:right;font-family:'Cormorant Garamond','Noto Sans JP',sans-serif;font-weight:500}
+.ing-unit-input{cursor:pointer}
+.ing-rm{
+  background:none;border:none;color:var(--fnt);cursor:pointer;
+  font-size:1.05rem;padding:0;line-height:1;transition:color .15s;
+}
+.ing-rm:hover{color:var(--red)}
+.ing-actions{
+  display:flex;gap:8px;margin-top:12px;padding-top:10px;
+  border-top:1px solid var(--line);
+}
+.ing-actions .btn-ghost{flex:0 0 auto;font-size:.78rem;padding:6px 10px}
+.ing-srv-note{
+  font-family:'Noto Sans JP',sans-serif;font-size:.75rem;
+  font-weight:400;color:var(--mut);margin-left:8px;letter-spacing:.02em;
+}
+.ing-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px dashed var(--line);
+  font-size:.88rem;
+}
+.ing-item:last-child{border-bottom:none}
+.ing-name{color:var(--ink2)}
+.ing-amt{color:var(--mut);font-size:.82rem;font-family:'Cormorant Garamond',serif}
+.steps-list{display:flex;flex-direction:column;gap:14px}
+.step-item{display:flex;gap:14px;font-size:.88rem;line-height:1.7}
+.step-num{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  background:var(--accent-l);color:var(--accent-d);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:600;font-family:'Cormorant Garamond',serif;
+}
+.modal-memo{
+  margin-top:24px;padding:14px 18px;background:var(--bg2);
+  border-radius:var(--r-m);font-size:.82rem;color:var(--ink2);
+  border-left:3px solid var(--accent);font-family:'Shippori Mincho',serif;
+}
+.modal-memo .lb{font-weight:600;color:var(--accent-d);margin-right:6px}
+.recipe-memo{
+  width:100%;min-height:90px;
+  padding:12px 14px;border:1.5px solid var(--line2);
+  border-radius:var(--r-m);background:var(--bg2);
+  font-family:'Hiragino Sans','Yu Gothic UI',sans-serif;
+  font-size:.88rem;line-height:1.7;color:var(--ink2);
+  resize:vertical;outline:none;transition:border-color .2s,background .2s;
+}
+.recipe-memo:focus{border-color:var(--accent);background:var(--paper)}
+.recipe-memo::placeholder{color:var(--fnt);font-size:.82rem;line-height:1.6}
+.modal-tip{
+  margin-top:18px;padding:14px 18px;background:var(--green-l);
+  border-radius:var(--r-m);font-size:.82rem;color:var(--ink2);
+  border-left:3px solid var(--green);
+}
+.modal-tip .lb{font-weight:600;color:var(--green);margin-right:6px;font-family:'Shippori Mincho',serif}
+
+/* ── Selection Page (コンパクト・カテゴリ別) ──────────── */
+.sel-toolbar{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:var(--paper);padding:16px 20px;border-radius:var(--r-l);
+  margin-bottom:24px;border:1px solid var(--line);
+}
+.sel-count-lbl{
+  font-size:.88rem;font-weight:500;color:var(--mut);
+  font-family:'Shippori Mincho',serif;margin-right:auto;
+}
+/* カテゴリ別グルーピング */
+.sel-cat-group{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r-l);margin-bottom:14px;overflow:hidden;
+}
+.sel-cat-head{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 18px;background:var(--bg2);
+  border-bottom:1px solid var(--line);
+}
+.sel-cat-mark{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sel-cat-title{
+  font-family:'Shippori Mincho',serif;font-size:.95rem;font-weight:600;
+  color:var(--ink);letter-spacing:.04em;flex:1;
+}
+.sel-cat-emoji{font-size:1.1rem;opacity:.85}
+.sel-cat-count{font-size:.78rem;color:var(--mut);font-family:'Cormorant Garamond',serif;font-weight:500}
+.sel-cat-toggle{
+  font-size:.75rem;color:var(--accent);cursor:pointer;
+  padding:3px 9px;border-radius:4px;border:1px solid var(--line2);
+  background:var(--paper);transition:all .15s;
+}
+.sel-cat-toggle:hover{background:var(--accent-l);border-color:var(--accent)}
+/* アイテム行（1行コンパクト） */
+.sel-list{padding:4px 0}
+.sel-row{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 14px 8px 18px;
+  border-bottom:1px solid var(--line);
+  transition:background .15s;
+}
+.sel-row:last-child{border-bottom:none}
+.sel-row:hover{background:var(--bg2)}
+.sel-row.sel-on{background:var(--accent-l)}
+.sel-row .sel-cb{
+  width:17px;height:17px;cursor:pointer;flex-shrink:0;
+  accent-color:var(--accent);
+}
+.sel-row .sel-name{
+  flex:1;font-family:'Shippori Mincho',serif;font-size:.92rem;
+  color:var(--ink);letter-spacing:.01em;cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  padding:2px 0;transition:color .15s;
+}
+.sel-row .sel-name:hover{color:var(--accent-d);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:var(--accent)}
+.sel-row .sel-season{
+  font-size:.65rem;background:var(--green-l);color:var(--green);
+  padding:1px 7px;border-radius:3px;font-family:'Shippori Mincho',serif;
+  flex-shrink:0;
+}
+.sel-row .sel-fav{
+  width:28px;height:28px;border-radius:50%;background:none;border:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  flex-shrink:0;padding:0;transition:background .15s;
+}
+.sel-row .sel-fav:hover{background:rgba(155,62,62,.08)}
+.sel-row .sel-fav svg{width:16px;height:16px;fill:none;stroke:var(--fnt);stroke-width:1.8;transition:.15s}
+.sel-row .sel-fav.on svg{fill:var(--red);stroke:var(--red)}
+
+/* ── Shopping List ─────────────────────────────────────── */
+.shop-layout{
+  display:grid;grid-template-columns:340px 1fr;gap:28px;
+  align-items:start;
+}
+.shop-side{
+  background:var(--paper);border-radius:var(--r-l);
+  padding:24px;border:1px solid var(--line);
+  position:sticky;top:calc(var(--nav-h) + 20px);
+  max-height:calc(100vh - var(--nav-h) - 40px);
+  overflow-y:auto;
+}
+.shop-side h3{
+  font-family:'Shippori Mincho',serif;font-size:1.1rem;font-weight:500;
+  margin-bottom:6px;letter-spacing:.04em;
+}
+.shop-side .sub{font-size:.82rem;color:var(--mut);margin-bottom:18px}
+.shop-srv{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--bg2);border-radius:var(--r-m);
+  margin-bottom:16px;
+}
+.shop-srv .lb{font-size:.85rem;color:var(--mut);font-family:'Shippori Mincho',serif}
+.srv-ctrl{display:flex;align-items:center;gap:10px}
+.srv-btn{
+  width:30px;height:30px;border-radius:50%;background:var(--paper);
+  border:1.5px solid var(--line2);font-size:1rem;color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+}
+.srv-btn:hover{border-color:var(--accent);color:var(--accent)}
+.srv-disp{
+  font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:500;
+  color:var(--ink);min-width:30px;text-align:center;
+}
+.shop-note{
+  font-size:.78rem;color:var(--mut);padding:12px 14px;
+  background:var(--accent-l);border-radius:var(--r-m);margin-bottom:14px;
+  border-left:3px solid var(--accent);
+}
+.shop-actions{margin-top:14px}
+.shop-actions button{width:100%}
+.shop-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;text-align:center;color:var(--mut);
+}
+.shop-empty .em{font-size:2.5rem;margin-bottom:14px;opacity:.4}
+.shop-empty .ms{font-size:.9rem;font-family:'Shippori Mincho',serif}
+
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+
+/* 献立一覧（料理ごとの人数調整） */
+.menus-block{
+  background:var(--paper);border-radius:var(--r-l);
+  padding:16px 18px 12px;border:1px solid var(--line);margin-bottom:20px;
+}
+.menus-block-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);
+}
+.menus-block-head h4{
+  font-family:'Shippori Mincho',serif;font-size:.98rem;font-weight:600;
+  letter-spacing:.04em;
+}
+.menus-block-head .sub{font-size:.76rem;color:var(--mut)}
+.menus-cat-section{margin-bottom:10px}
+.menus-cat-label{
+  font-size:.74rem;color:var(--mut);font-family:'Shippori Mincho',serif;
+  letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:6px;
+}
+.menus-cat-label .mk{width:6px;height:6px;border-radius:50%}
+.menu-row{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 0;border-bottom:1px dotted var(--line);font-size:.88rem;
+}
+.menu-row:last-child{border-bottom:none}
+.menu-row-name{
+  flex:1;font-family:'Shippori Mincho',serif;color:var(--ink);
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.menu-row-memo{
+  font-size:.74rem;color:var(--mut);font-style:italic;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:160px;
+}
+.menu-row-srv{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.menu-row-srv .srv-mini{
+  width:22px;height:22px;border-radius:50%;border:1px solid var(--line2);
+  background:var(--paper);color:var(--ink);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;
+  transition:all .15s;padding:0;
+}
+.menu-row-srv .srv-mini:hover{border-color:var(--accent);color:var(--accent)}
+.menu-row-srv .srv-num{
+  font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:500;
+  color:var(--ink);min-width:18px;text-align:center;
+}
+.menu-row-srv .srv-unit{font-size:.7rem;color:var(--mut);margin-left:1px}
+.menu-row-srv .srv-custom{color:var(--accent-d)}
+.menu-row-rm{
+  background:none;border:none;color:var(--fnt);cursor:pointer;
+  font-size:1rem;padding:0 4px;line-height:1;transition:color .15s;
+}
+.menu-row-rm:hover{color:var(--red)}
+.shop-group{
+  background:var(--paper);border-radius:var(--r-l);
+  padding:16px 18px;border:1px solid var(--line);
+}
+.shop-group h4{
+  font-family:'Shippori Mincho',serif;font-size:.95rem;font-weight:600;
+  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line);
+  letter-spacing:.04em;display:flex;align-items:center;gap:8px;
+}
+.shop-group h4 .em{font-size:1rem;opacity:.7}
+.shop-item{
+  display:flex;align-items:flex-start;gap:8px;padding:6px 0;
+  font-size:.86rem;
+}
+.shop-cb{
+  width:16px;height:16px;cursor:pointer;flex-shrink:0;margin-top:3px;
+  accent-color:var(--accent);
+}
+.shop-iname{flex:1;cursor:pointer;color:var(--ink2);line-height:1.5;transition:color .2s}
+.shop-checked{text-decoration:line-through;color:var(--fnt) !important;opacity:.6}
+.shop-amt{font-size:.78rem;color:var(--accent-d);text-align:right;flex-shrink:0;font-family:'Cormorant Garamond','Noto Sans JP',sans-serif;font-weight:500;white-space:nowrap}
+
+.shop-footer{
+  background:var(--paper);border-radius:var(--r-l);
+  padding:14px 20px;margin-top:20px;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.shop-footer-info{font-size:.85rem;color:var(--mut);font-family:'Shippori Mincho',serif}
+
+/* ── Favorites tab ─────────────────────────────────────── */
+.fav-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 20px;text-align:center;color:var(--mut);
+}
+.fav-empty svg{width:48px;height:48px;margin-bottom:18px;opacity:.4;stroke:var(--mut);fill:none;stroke-width:1.5}
+.fav-empty .ms{font-size:.95rem;font-family:'Shippori Mincho',serif;margin-bottom:8px}
+.fav-empty .sub{font-size:.82rem}
+
+/* ── Footer ────────────────────────────────────────────── */
+.footer{
+  margin-top:80px;padding:36px 0;background:var(--ink);color:var(--paper);
+  text-align:center;font-size:.82rem;
+}
+.footer .ja{font-family:'Shippori Mincho',serif;letter-spacing:.1em;margin-bottom:6px}
+.footer .en{font-family:'Cormorant Garamond',serif;font-style:italic;opacity:.5;font-size:.85rem}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media(max-width:960px){
+  .shop-layout{grid-template-columns:1fr}
+  .shop-side{position:static;max-height:none}
+}
+@media(max-width:768px){
+  :root{--nav-h:56px}
+  .nav-inner{padding:0 14px}
+  .nav-logo{font-size:1.05rem;gap:6px}
+  .nav-logo .jp{display:none}
+  .nav-links{gap:0;flex:1;justify-content:flex-end}
+  .nav-link{padding:6px 9px;font-size:.74rem;letter-spacing:.02em}
+  .modal-cols{grid-template-columns:1fr;gap:24px}
+  .container{padding:0 16px}
+  .modal-body{padding:22px 22px 34px}
+  .section{padding:36px 0}
+}
+@media(max-width:420px){
+  .nav-logo span:first-child{font-size:.95rem}
+  .nav-link{padding:5px 7px;font-size:.7rem}
+}
+@media(max-width:520px){
+  .recipe-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .sel-grid{grid-template-columns:1fr}
+  .card-body{padding:13px 14px 14px}
+  .card-name{font-size:.95rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="show('select')">
+      <span>Yukiko<span class="em">'s</span> Kitchen</span>
+      <span class="jp">— 我が家のレパートリー</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" id="nav-select" onclick="show('select')">献立</button>
+      <button class="nav-link" id="nav-fav" onclick="show('fav')">お気に入り</button>
+      <button class="nav-link" id="nav-shop" onclick="show('shop')">買い物</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════ FAV ═══════════ -->
+<div class="page" id="page-fav">
+  <section class="page-header">
+    <div class="container">
+      <div class="ph-row">
+        <div>
+          <h1 class="ph-title">お気に入り</h1>
+          <p class="ph-sub"><span id="fav-count">0</span>品 · 名前タップで食材編集</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" style="padding-top:24px">
+    <div class="container">
+      <div id="fav-list-wrap"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════ SELECT (メインページ) ═══════════ -->
+<div class="page active" id="page-select">
+  <!-- シンプルなページヘッダー -->
+  <section class="page-header">
+    <div class="container">
+      <div class="ph-row">
+        <div>
+          <h1 class="ph-title">料理レパートリー</h1>
+          <p class="ph-sub"><span id="stat-total">107</span>品 · 無添加・天然素材 · 薄味基本</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn-outline btn-sm" onclick="addNewRecipe()">＋ 新しい料理</button>
+          <button class="btn-primary btn-sm" onclick="show('shop')" id="ph-shop-btn">買い物リストへ →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 検索バー -->
+  <div class="filter-bar">
+    <div class="container">
+      <div class="filter-inner">
+        <input type="text" class="filter-search" id="sel-search" placeholder="料理名・食材で検索…" oninput="renderCustomSelector()">
+        <span class="sel-count-lbl" id="sel-count-lbl">0品 選択中</span>
+        <button class="btn-ghost" onclick="expandAllCats(true)">全展開</button>
+        <button class="btn-ghost" onclick="expandAllCats(false)">全閉じ</button>
+        <button class="btn-ghost" onclick="clearSelection()">クリア</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="section" style="padding-top:24px">
+    <div class="container">
+      <div id="sel-groups"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════ SHOP ═══════════ -->
+<div class="page" id="page-shop">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="label">Shopping List</span>
+          <h2 class="section-title">買い物リスト <span class="en">to buy</span></h2>
+        </div>
+        <button class="btn-ghost" onclick="show('select')">← 献立を選び直す</button>
+      </div>
+
+      <div class="shop-layout">
+        <aside class="shop-side">
+          <h3 id="shop-title">買い物リスト</h3>
+          <p class="sub" id="shop-sub">献立を選択してください</p>
+
+          <div class="shop-srv">
+            <span class="lb">デフォルト人数</span>
+            <div class="srv-ctrl">
+              <button class="srv-btn" onclick="adjSrv(-1)">−</button>
+              <span class="srv-disp" id="srv-disp">4</span>
+              <button class="srv-btn" onclick="adjSrv(1)">+</button>
+            </div>
+          </div>
+
+          <div class="shop-note" id="shop-note" style="display:none"></div>
+
+          <div class="shop-actions">
+            <button class="btn-primary btn-sm" onclick="openPrintView()" id="btn-print" style="width:100%;margin-bottom:8px">🖨️ 印刷 / PDF保存</button>
+            <button class="btn-outline btn-sm" onclick="shareList()" id="btn-share" style="width:100%;margin-bottom:8px">📤 共有</button>
+            <button class="btn-ghost" onclick="copyShopList()" style="width:100%;margin-bottom:8px">📋 テキストでコピー</button>
+            <button class="btn-ghost" onclick="resetChecked()" style="width:100%">チェックをリセット</button>
+          </div>
+        </aside>
+
+        <div>
+          <div class="shop-empty" id="shop-empty">
+            <div class="em">🍽</div>
+            <div class="ms">献立を選んでください</div>
+            <div style="margin-top:6px;font-size:.82rem">「献立を選ぶ」から料理をチェック</div>
+          </div>
+          <div id="shop-menus" style="display:none"></div>
+          <div class="shop-grid" id="shop-grid" style="display:none"></div>
+          <div class="shop-footer" id="shop-footer" style="display:none">
+            <span class="shop-footer-info" id="shop-footer-info"></span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-ghost" onclick="openPrintView()">🖨️ 印刷/PDF</button>
+              <button class="btn-ghost" onclick="shareList()">📤 共有</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════ MODAL ═══════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<footer class="footer">
+  <div class="ja">薄味 · 素材を活かす · 無添加・天然素材</div>
+  <div class="en">107 recipes · 基準4人分</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════ */
+const CATS={
+  washoku: {label:'和食',     color:'#487868',emoji:'🍱'},
+  chuka:   {label:'中華',     color:'#9B3E3E',emoji:'🥟'},
+  yoshoku: {label:'洋食',     color:'#7870A0',emoji:'🍽'},
+  rice:    {label:'ご飯もの', color:'#B08838',emoji:'🍚'},
+  soup:    {label:'スープ',   color:'#3A8090',emoji:'🥣'},
+  side:    {label:'副菜・サラダ',color:'#6B9E58',emoji:'🥗'},
+  other:   {label:'その他',   color:'#7A6B64',emoji:'🍴'},
+};
+
+const RECIPES=[
+{id:1,name:'ひじきの煮物',cat:'side',diff:2,time:15,desc:'干芽ひじき・人参を使った彩り副菜',ing:['干芽ひじき','人参','ピーマン','生椎茸','油揚げorさつま揚げ','煮大豆']},
+{id:2,name:'あじ南蛮漬け',cat:'washoku',diff:2,time:25,desc:'鯵（三枚おろし）・玉ねぎを使った和の家庭料理',ing:['鯵（三枚おろし）','玉ねぎ','人参','ピーマン','出汁']},
+{id:3,name:'肉じゃが',cat:'washoku',diff:2,time:25,desc:'牛肉・玉ねぎを使った和の家庭料理',ing:['牛肉','玉ねぎ','人参','じゃが芋']},
+{id:4,name:'切り干し大根の煮物',cat:'side',diff:2,time:15,desc:'切り干し大根・人参を使った彩り副菜',ing:['切り干し大根','人参','油揚げ','さつま揚げ（無添加）','煮大豆']},
+{id:5,name:'筑前煮',cat:'washoku',diff:3,time:40,desc:'鶏肉・人参を使った和の家庭料理',ing:['鶏肉','人参','ごぼう','さつま揚げ（無添加）','れんこん','生椎茸','大根']},
+{id:6,name:'きんぴらごぼう',cat:'side',diff:1,time:10,desc:'ごぼう・人参を使った彩り副菜',ing:['ごぼう','人参']},
+{id:7,name:'鶏つくね焼き',cat:'washoku',diff:2,time:25,desc:'鶏ももひき肉・玉ねぎを使った和の家庭料理',ing:['鶏ももひき肉','玉ねぎ','卵','パン粉（米粉パン粉）']},
+{id:8,name:'魚の煮付け',cat:'washoku',diff:2,time:25,desc:'白身魚（鯛等）・生姜を使った和の家庭料理',ing:['白身魚（鯛等）','生姜']},
+{id:9,name:'豚汁',cat:'soup',diff:2,time:20,desc:'豚肉・玉ねぎを使った体を温めるスープ',ing:['豚肉','玉ねぎ','人参','じゃが芋','大根','生椎茸','豆腐']},
+{id:10,name:'鯵の竜田揚げ',cat:'washoku',diff:2,time:40,desc:'鯵（三枚おろし）・生姜を使った和の家庭料理',ing:['鯵（三枚おろし）','生姜']},
+{id:11,name:'炒り豆腐',cat:'washoku',diff:2,time:25,desc:'豆腐・卵を使った和の家庭料理',ing:['豆腐','卵','人参','生椎茸','さやいんげん']},
+{id:12,name:'卯の花',cat:'side',diff:2,time:15,desc:'おから・人参を使った彩り副菜',ing:['おから','人参','油揚げ','生椎茸','さやいんげん']},
+{id:13,name:'かやくご飯',cat:'rice',diff:2,time:30,desc:'鶏肉・人参を使ったご飯もの',ing:['鶏肉','人参','生椎茸','油揚げ','ごぼう']},
+{id:14,name:'きのこと鮭の炊き込みご飯',cat:'rice',diff:2,time:30,desc:'生鮭・しめじを使ったご飯もの',ing:['生鮭','しめじ','えのき','舞茸','油揚げ']},
+{id:15,name:'さつまいもご飯',cat:'rice',diff:2,time:30,desc:'さつまいもを使ったご飯もの',ing:['さつまいも']},
+{id:16,name:'鯛飯',cat:'rice',diff:2,time:30,desc:'鯛を使ったご飯もの',ing:['鯛']},
+{id:17,name:'大学芋',cat:'side',diff:2,time:15,desc:'さつまいもを使った彩り副菜',ing:['さつまいも']},
+{id:18,name:'ピーマンの肉詰め',cat:'washoku',diff:2,time:25,desc:'牛豚合いびき肉・ピーマンを使った和の家庭料理',ing:['牛豚合いびき肉','ピーマン','玉ねぎ','卵','パン粉（米粉パン粉）']},
+{id:19,name:'肉巻き',cat:'washoku',diff:2,time:25,desc:'牛肉薄切り・野菜（ごぼう・人参・いんげん等）を使った和の家庭料理',ing:['牛肉薄切り','野菜（ごぼう・人参・いんげん等）']},
+{id:20,name:'紅茶豚（煮豚）',cat:'washoku',diff:3,time:40,desc:'豚肩ロース・玉ねぎを使った和の家庭料理',ing:['豚肩ロース','玉ねぎ','生姜','紅茶']},
+{id:21,name:'そぼろご飯の具',cat:'washoku',diff:2,time:25,desc:'鶏ひき肉・卵を使った和の家庭料理',ing:['鶏ひき肉','卵','絹さや']},
+{id:22,name:'かき玉汁',cat:'soup',diff:1,time:10,desc:'卵・長ねぎを使った体を温めるスープ',ing:['卵','長ねぎ','出汁']},
+{id:23,name:'野菜の揚げ煮浸し',cat:'side',diff:2,time:30,desc:'なす・ズッキーニを使った彩り副菜',ing:['なす','ズッキーニ','ピーマン','パプリカ','出汁']},
+{id:24,name:'鮭のちゃんちゃん焼き',cat:'washoku',diff:2,time:25,desc:'生鮭・キャベツを使った和の家庭料理',ing:['生鮭','キャベツ','玉ねぎ','人参','しめじ','グラスフェッドバター']},
+{id:25,name:'松茸ご飯（時季）',cat:'rice',diff:2,time:30,desc:'松茸を使ったご飯もの',ing:['松茸'],memo:'時季限定'},
+{id:26,name:'春巻き（そら豆・ささみ）（時季）',cat:'washoku',diff:3,time:40,desc:'ささみ・そら豆を使った和の家庭料理',ing:['ささみ','そら豆','春巻きの皮（米粉）'],memo:'時季限定'},
+{id:27,name:'秋刀魚の蒲焼（時季）',cat:'washoku',diff:2,time:25,desc:'秋刀魚を使った和の家庭料理',ing:['秋刀魚'],memo:'時季限定'},
+{id:28,name:'とうもろこしご飯（夏季）',cat:'rice',diff:2,time:30,desc:'とうもろこしを使ったご飯もの',ing:['とうもろこし'],memo:'夏季限定'},
+{id:29,name:'いなり寿司',cat:'rice',diff:2,time:30,desc:'油揚げ・酢飯（米）を使ったご飯もの',ing:['油揚げ','酢飯（米）','白ごま']},
+{id:30,name:'五目寿司',cat:'rice',diff:2,time:30,desc:'米・人参を使ったご飯もの',ing:['米','人参','れんこん','生椎茸','油揚げ','かんぴょう','錦糸卵']},
+{id:31,name:'酢飯と塩鮭の混ぜご飯',cat:'rice',diff:2,time:30,desc:'塩鮭・米を使ったご飯もの',ing:['塩鮭','米','大葉','わかめ']},
+{id:32,name:'おこわ',cat:'rice',diff:2,time:45,desc:'もち米・鶏肉を使ったご飯もの',ing:['もち米','鶏肉','人参','生椎茸','ごぼう']},
+{id:33,name:'ドライカレー（キーマカレー）',cat:'yoshoku',diff:2,time:30,desc:'豚ひき肉・玉ねぎを使った洋食の人気おかず',ing:['豚ひき肉','玉ねぎ','ピーマン','干しぶどう','カレー粉（無添加スパイス）','トマトペースト']},
+{id:34,name:'ミネストローネ',cat:'soup',diff:2,time:20,desc:'鶏肉・トマトを使った体を温めるスープ',ing:['鶏肉','トマト','玉ねぎ','セロリ','人参','トマトペースト']},
+{id:35,name:'ロールキャベツ',cat:'yoshoku',diff:3,time:45,desc:'牛ひき肉・豚ひき肉を使った洋食の人気おかず',ing:['牛ひき肉','豚ひき肉','キャベツ','玉ねぎ','パン粉（米粉パン粉）','卵']},
+{id:36,name:'煮込みハンバーグ',cat:'yoshoku',diff:2,time:45,desc:'牛ひき肉・豚ひき肉を使った洋食の人気おかず',ing:['牛ひき肉','豚ひき肉','玉ねぎ','ピーマン','パン粉（米粉パン粉）','卵','トマトペースト']},
+{id:37,name:'ポテトサラダ',cat:'side',diff:1,time:10,desc:'じゃが芋・人参を使った彩り副菜',ing:['じゃが芋','人参','きゅうり','鶏肉','酢','マヨネーズ（無添加 or 自家製）','りんご']},
+{id:38,name:'えびだんご',cat:'yoshoku',diff:2,time:30,desc:'えびのすり身を使った洋食の人気おかず',ing:['えびのすり身']},
+{id:39,name:'ローストビーフ',cat:'yoshoku',diff:3,time:45,desc:'牛肉（オージーまたは国産）を使った洋食の人気おかず',ing:['牛肉（オージーまたは国産）']},
+{id:40,name:'梅しそチーズつくね',cat:'yoshoku',diff:2,time:30,desc:'鶏ひき肉・はんぺん（無添加）を使った洋食の人気おかず',ing:['鶏ひき肉','はんぺん（無添加）','青しそ','玉ねぎ','たまご','梅干し','チーズ（無添加）','片栗粉','無臭ココナッツオイル']},
+{id:41,name:'えびのクリーム煮',cat:'yoshoku',diff:2,time:30,desc:'えび・玉ねぎを使った洋食の人気おかず',ing:['えび','玉ねぎ','マッシュルーム','生クリーム（添加物なしのもの）']},
+{id:42,name:'ハッシュドビーフ',cat:'yoshoku',diff:2,time:30,desc:'牛肉・玉ねぎを使った洋食の人気おかず',ing:['牛肉','玉ねぎ','マッシュルーム','トマトペースト']},
+{id:43,name:'ミートソース',cat:'yoshoku',diff:2,time:30,desc:'牛豚合いびき肉・玉ねぎを使った洋食の人気おかず',ing:['牛豚合いびき肉','玉ねぎ','人参','セロリ','トマトペースト']},
+{id:44,name:'ハンバーグ',cat:'yoshoku',diff:2,time:30,desc:'牛ひき肉・豚ひき肉を使った洋食の人気おかず',ing:['牛ひき肉','豚ひき肉','玉ねぎ','パン粉（米粉パン粉）','ピーマン','しいたけ','卵']},
+{id:45,name:'ミートボール',cat:'yoshoku',diff:2,time:30,desc:'牛豚合いびき肉・玉ねぎを使った洋食の人気おかず',ing:['牛豚合いびき肉','玉ねぎ','パン粉（米粉パン粉）','卵']},
+{id:46,name:'ミートローフ',cat:'yoshoku',diff:2,time:30,desc:'牛豚合いびき肉・玉ねぎを使った洋食の人気おかず',ing:['牛豚合いびき肉','玉ねぎ','人参','パン粉（米粉パン粉）','卵']},
+{id:47,name:'ビーフストロガノフ',cat:'yoshoku',diff:2,time:30,desc:'牛肉・玉ねぎを使った洋食の人気おかず',ing:['牛肉','玉ねぎ','マッシュルーム','サワークリーム']},
+{id:48,name:'チキンとほうれん草のクリーム煮',cat:'yoshoku',diff:2,time:30,desc:'鶏肉・ほうれん草を使った洋食の人気おかず',ing:['鶏肉','ほうれん草','玉ねぎ','生クリーム（添加物なしのもの）']},
+{id:49,name:'ラザニア',cat:'yoshoku',diff:3,time:45,desc:'牛豚合いびき肉・玉ねぎを使った洋食の人気おかず',ing:['牛豚合いびき肉','玉ねぎ','トマトペースト','ラザニアシート（米粉）','ベシャメルソース（米粉で自家製）']},
+{id:50,name:'マカロニグラタン',cat:'yoshoku',diff:2,time:45,desc:'鶏肉・玉ねぎを使った洋食の人気おかず',ing:['鶏肉','玉ねぎ','マカロニ','生クリーム（添加物なしのもの）']},
+{id:51,name:'コロッケ',cat:'yoshoku',diff:3,time:45,desc:'じゃが芋・牛豚合いびき肉を使った洋食の人気おかず',ing:['じゃが芋','牛豚合いびき肉','玉ねぎ','卵','パン粉（米粉パン粉）']},
+{id:52,name:'パエリア',cat:'yoshoku',diff:3,time:45,desc:'鶏肉・えびを使った洋食の人気おかず',ing:['鶏肉','えび','あさり','パプリカ','玉ねぎ','米','サフラン']},
+{id:53,name:'魚のムニエル',cat:'yoshoku',diff:2,time:30,desc:'白身魚（鮭等）・グラスフェッドバターを使った洋食の人気おかず',ing:['白身魚（鮭等）','グラスフェッドバター']},
+{id:54,name:'ヴィシソワーズ',cat:'soup',diff:2,time:20,desc:'じゃが芋・長ねぎを使った体を温めるスープ',ing:['じゃが芋','長ねぎ','生クリーム（添加物なしのもの）']},
+{id:55,name:'かぼちゃのスープ',cat:'soup',diff:1,time:20,desc:'かぼちゃ・玉ねぎを使った体を温めるスープ',ing:['かぼちゃ','玉ねぎ','生クリーム（添加物なしのもの）']},
+{id:56,name:'アクアパッツァ',cat:'yoshoku',diff:2,time:30,desc:'白身魚・あさりを使った洋食の人気おかず',ing:['白身魚','あさり','トマト','しめじまたはマッシュルーム','オリーブ','にんにく']},
+{id:57,name:'マリネ',cat:'yoshoku',diff:2,time:30,desc:'白身魚・えびを使った洋食の人気おかず',ing:['白身魚','えび','イカ','タコ','玉ねぎ','人参','セロリ']},
+{id:58,name:'キッシュ',cat:'yoshoku',diff:3,time:45,desc:'卵・生クリーム（添加物なしのもの）を使った洋食の人気おかず',ing:['卵','生クリーム（添加物なしのもの）','ベーコン（無添加）','玉ねぎ','パイ生地（米粉）']},
+{id:59,name:'キャベツスープ',cat:'soup',diff:1,time:20,desc:'キャベツ・玉ねぎを使った体を温めるスープ',ing:['キャベツ','玉ねぎ','ベーコン（無添加）']},
+{id:60,name:'チキンカリー',cat:'yoshoku',diff:2,time:30,desc:'鶏肉・玉ねぎを使った洋食の人気おかず',ing:['鶏肉','玉ねぎ','トマト','カレー粉（無添加スパイス）']},
+{id:61,name:'ラタトゥイユ',cat:'side',diff:2,time:15,desc:'なす・ズッキーニを使った彩り副菜',ing:['なす','ズッキーニ','パプリカ','玉ねぎ','トマト','マッシュルーム']},
+{id:62,name:'ポトフ',cat:'soup',diff:2,time:35,desc:'牛肉・キャベツを使った体を温めるスープ',ing:['牛肉','キャベツ','玉ねぎ','人参','じゃが芋','セロリ']},
+{id:63,name:'コーンチャウダー',cat:'soup',diff:2,time:20,desc:'とうもろこし・じゃが芋を使った体を温めるスープ',ing:['とうもろこし','じゃが芋','玉ねぎ','生クリーム（添加物なしのもの）']},
+{id:64,name:'コールスローサラダ',cat:'side',diff:1,time:10,desc:'キャベツ・人参を使った彩り副菜',ing:['キャベツ','人参','酢','マヨネーズ（無添加 or 自家製）']},
+{id:65,name:'かぼちゃサラダ',cat:'side',diff:1,time:10,desc:'かぼちゃ・マヨネーズ（無添加 or 自家製）を使った彩り副菜',ing:['かぼちゃ','マヨネーズ（無添加 or 自家製）']},
+{id:66,name:'さつまいものサラダ',cat:'side',diff:1,time:10,desc:'さつまいも・マヨネーズ（無添加 or 自家製）を使った彩り副菜',ing:['さつまいも','マヨネーズ（無添加 or 自家製）']},
+{id:67,name:'スペアリブ',cat:'yoshoku',diff:2,time:45,desc:'豚スペアリブ・オレンジマーマレードを使った洋食の人気おかず',ing:['豚スペアリブ','オレンジマーマレード']},
+{id:68,name:'マカロニサラダ',cat:'side',diff:1,time:10,desc:'マカロニ・きゅうりを使った彩り副菜',ing:['マカロニ','きゅうり','ハム（無添加）','マヨネーズ（無添加 or 自家製）']},
+{id:69,name:'なすの挟み揚げ',cat:'yoshoku',diff:2,time:45,desc:'なす・牛豚合いびき肉を使った洋食の人気おかず',ing:['なす','牛豚合いびき肉','卵','片栗粉']},
+{id:70,name:'メンチカツ',cat:'yoshoku',diff:3,time:45,desc:'牛豚合いびき肉・玉ねぎを使った洋食の人気おかず',ing:['牛豚合いびき肉','玉ねぎ','卵','パン粉（米粉パン粉）']},
+{id:71,name:'夏野菜のスープ（夏季）',cat:'soup',diff:1,time:20,desc:'トマト・ズッキーニを使った体を温めるスープ',ing:['トマト','ズッキーニ','パプリカ','玉ねぎ'],memo:'夏季限定'},
+{id:72,name:'チキンライス',cat:'rice',diff:2,time:30,desc:'鶏肉・玉ねぎを使ったご飯もの',ing:['鶏肉','玉ねぎ','マッシュルーム','トマトペースト','米']},
+{id:73,name:'鶏の唐揚げ',cat:'chuka',diff:2,time:40,desc:'鶏もも肉・生姜を使った中華の定番',ing:['鶏もも肉','生姜','にんにく','卵','片栗粉']},
+{id:74,name:'餃子',cat:'chuka',diff:3,time:25,desc:'豚ひき肉・キャベツを使った中華の定番',ing:['豚ひき肉','キャベツ','長ねぎ','にら','生姜','餃子の皮（米粉）']},
+{id:75,name:'チキンナゲット（えび）',cat:'chuka',diff:2,time:25,desc:'鶏むね肉またはえびのすり身・卵を使った中華の定番',ing:['鶏むね肉またはえびのすり身','卵','片栗粉']},
+{id:76,name:'春巻き',cat:'chuka',diff:3,time:40,desc:'豚肉・春雨を使った中華の定番',ing:['豚肉','春雨','しいたけ','たけのこ','春巻きの皮（米粉）']},
+{id:77,name:'麻婆豆腐',cat:'chuka',diff:2,time:25,desc:'豚ひき肉・豆腐を使った中華の定番',ing:['豚ひき肉','豆腐','長ねぎ','にんにく','生姜','豆板醤（味噌）']},
+{id:78,name:'蒸し鶏',cat:'chuka',diff:1,time:15,desc:'鶏むね肉・生姜を使った中華の定番',ing:['鶏むね肉','生姜','長ねぎ']},
+{id:79,name:'鶏の一枚揚げ',cat:'chuka',diff:2,time:40,desc:'鶏もも肉・にんにくを使った中華の定番',ing:['鶏もも肉','にんにく','生姜','片栗粉']},
+{id:80,name:'海老のチリソース',cat:'chuka',diff:2,time:25,desc:'えび・長ねぎを使った中華の定番',ing:['えび','長ねぎ','生姜','にんにく','豆板醤']},
+{id:81,name:'酢豚',cat:'chuka',diff:2,time:25,desc:'豚肩ロース・玉ねぎを使った中華の定番',ing:['豚肩ロース','玉ねぎ','ピーマン','パプリカ','パイナップル']},
+{id:82,name:'酢鶏',cat:'chuka',diff:2,time:25,desc:'鶏肉・玉ねぎを使った中華の定番',ing:['鶏肉','玉ねぎ','ピーマン','パプリカ','パイナップル']},
+{id:83,name:'レタス巻き焼売',cat:'chuka',diff:3,time:25,desc:'豚ひき肉・えびのすり身を使った中華の定番',ing:['豚ひき肉','えびのすり身','レタス']},
+{id:84,name:'焼売',cat:'chuka',diff:3,time:25,desc:'豚ひき肉・えびのすり身を使った中華の定番',ing:['豚ひき肉','えびのすり身','玉ねぎ']},
+{id:85,name:'鶏ひき肉団子のスープ',cat:'soup',diff:1,time:20,desc:'鶏ひき肉・生姜を使った体を温めるスープ',ing:['鶏ひき肉','生姜','長ねぎ','春雨']},
+{id:86,name:'名古屋風鶏手羽先唐揚げ',cat:'chuka',diff:2,time:40,desc:'鶏手羽先・にんにくを使った中華の定番',ing:['鶏手羽先','にんにく','生姜','片栗粉']},
+{id:87,name:'回鍋肉',cat:'chuka',diff:2,time:25,desc:'豚バラ肉・キャベツを使った中華の定番',ing:['豚バラ肉','キャベツ','ピーマン','長ねぎ','にんにく','豆板醤']},
+{id:88,name:'青椒肉絲',cat:'chuka',diff:2,time:25,desc:'牛肉または豚肉・ピーマンを使った中華の定番',ing:['牛肉または豚肉','ピーマン','たけのこ']},
+{id:89,name:'中華丼・かた焼きそばのあんかけ',cat:'chuka',diff:1,time:15,desc:'豚肉・えびを使った中華の定番',ing:['豚肉','えび','白菜','人参','生椎茸','たけのこ','うずら卵']},
+{id:90,name:'チャーハン',cat:'rice',diff:1,time:20,desc:'卵・長ねぎを使ったご飯もの',ing:['卵','長ねぎ','焼き豚または無添加ハム','米']},
+{id:91,name:'かに玉',cat:'chuka',diff:2,time:25,desc:'卵・かに身（本物、または無添加かまぼこ）を使った中華の定番',ing:['卵','かに身（本物、または無添加かまぼこ）','長ねぎ']},
+{id:92,name:'肉団子酢豚風',cat:'chuka',diff:2,time:25,desc:'豚ひき肉・玉ねぎを使った中華の定番',ing:['豚ひき肉','玉ねぎ','卵','パプリカ','ピーマン']},
+{id:93,name:'八宝菜',cat:'chuka',diff:2,time:25,desc:'豚肉・えびを使った中華の定番',ing:['豚肉','えび','イカ','ピーマン','玉ねぎ','キクラゲ','長ねぎ','人参','生椎茸','たけのこ','うずら卵']},
+{id:94,name:'ゴーヤチャンプル',cat:'chuka',diff:2,time:25,desc:'ゴーヤ・豆腐を使った中華の定番',ing:['ゴーヤ','豆腐','豚バラ肉','卵']},
+{id:95,name:'キャベツの千切り',cat:'side',diff:1,time:10,desc:'キャベツを使った彩り副菜',ing:['キャベツ']},
+{id:96,name:'五目豆',cat:'side',diff:2,time:15,desc:'にんじん・干ししいたけを使った彩り副菜',ing:['にんじん','干ししいたけ','たけのこ','れんこん','蒸し大豆','さつま揚げ（無添加）']},
+{id:97,name:'えびだんご(和風)',cat:'washoku',diff:2,time:25,desc:'えびのすり身を使った和の家庭料理',ing:['えびのすり身']},
+{id:98,name:'親子丼',cat:'other',diff:1,time:15,desc:'鶏もも肉・卵を使ったアレンジ料理',ing:['鶏もも肉','卵','玉ねぎ','三つ葉','米']},
+{id:99,name:'カツ丼',cat:'other',diff:1,time:40,desc:'豚ロースカツ・卵を使ったアレンジ料理',ing:['豚ロースカツ','卵','玉ねぎ','米']},
+{id:100,name:'たらの甘酢あん',cat:'chuka',diff:2,time:25,desc:'たら・玉ねぎを使った中華の定番',ing:['たら','玉ねぎ','人参','ピーマン'],memo:'白身魚の作り置き向き'},
+{id:101,name:'お魚団子',cat:'washoku',diff:2,time:25,desc:'白身魚（鱈など）・はんぺん（無添加）を使った和の家庭料理',ing:['白身魚（鱈など）','はんぺん（無添加）','豆腐','生姜','長ねぎ','卵','片栗粉']},
+{id:102,name:'鶏肉の黒酢煮・煮卵入り',cat:'chuka',diff:2,time:25,desc:'鶏もも肉または手羽元・卵を使った中華の定番',ing:['鶏もも肉または手羽元','卵','黒酢','生姜']},
+{id:103,name:'ガパオ風鶏そぼろ',cat:'other',diff:2,time:25,desc:'鶏ひき肉・パプリカを使ったアレンジ料理',ing:['鶏ひき肉','パプリカ','玉ねぎ','バジル']},
+{id:104,name:'高野豆腐の鶏そぼろあん',cat:'washoku',diff:2,time:25,desc:'高野豆腐・鶏ひき肉を使った和の家庭料理',ing:['高野豆腐','鶏ひき肉','人参','出汁']},
+{id:105,name:'チリコンカン',cat:'other',diff:2,time:25,desc:'牛ひき肉・いろんな豆を使ったアレンジ料理',ing:['牛ひき肉','いろんな豆','玉ねぎ','トマト','スパイス']},
+{id:106,name:'鶏の冷汁',cat:'washoku',diff:2,time:25,desc:'鶏むね肉・きゅうりを使った和の家庭料理',ing:['鶏むね肉','きゅうり','豆腐','大葉','みょうが','すりごま','出汁']},
+{id:107,name:'しらすとピーマンのきんぴら',cat:'side',diff:1,time:10,desc:'しらす・ピーマンを使った彩り副菜',ing:['しらす','ピーマン','白ごま']},
+];
+
+const AMOUNTS={
+  1:[['干芽ひじき',30,'g'],['人参',0.5,'本'],['ピーマン',2,'個'],['生椎茸',4,'枚'],['油揚げ',2,'枚'],['煮大豆',100,'g']],
+  2:[['鯵（三枚おろし）',4,'尾'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['ピーマン',2,'個'],['出汁',400,'ml']],
+  3:[['牛肉',300,'g'],['玉ねぎ',1,'個'],['人参',0.75,'本'],['じゃが芋',3.25,'個']],
+  4:[['切り干し大根',1,'袋'],['人参',0.5,'本'],['油揚げ',2,'枚'],['さつま揚げ（無添加）',2,'枚'],['煮大豆',80,'g']],
+  5:[['鶏肉',300,'g'],['人参',0.75,'本'],['ごぼう',1,'本'],['さつま揚げ（無添加）',2,'枚'],['れんこん',0.75,'節'],['生椎茸',4,'枚'],['大根',0.25,'本']],
+  6:[['ごぼう',1,'本'],['人参',0.5,'本']],
+  7:[['鶏ももひき肉',400,'g'],['玉ねぎ',0.5,'個'],['卵',1,'個'],['パン粉（米粉パン粉）',20,'g']],
+  8:[['白身魚（鯛等）',400,'g'],['生姜',20,'g']],
+  9:[['豚肉',200,'g'],['玉ねぎ',0.5,'個'],['人参',0.5,'本'],['じゃが芋',2,'個'],['大根',0.25,'本'],['生椎茸',3,'枚'],['豆腐',0.5,'丁']],
+  10:[['鯵（三枚おろし）',4,'尾'],['生姜',20,'g']],
+  11:[['豆腐',1,'丁'],['卵',2,'個'],['人参',0.5,'本'],['生椎茸',3,'枚'],['さやいんげん',0.5,'パック']],
+  12:[['おから',200,'g'],['人参',0.5,'本'],['油揚げ',2,'枚'],['生椎茸',3,'枚'],['さやいんげん',0.5,'パック']],
+  13:[['米',2,'合'],['鶏肉',150,'g'],['人参',0.5,'本'],['生椎茸',3,'枚'],['油揚げ',2,'枚'],['ごぼう',0.5,'本']],
+  14:[['米',2,'合'],['生鮭',2,'切れ'],['しめじ',1,'パック'],['えのき',1,'袋'],['舞茸',1,'パック'],['油揚げ',1,'枚']],
+  15:[['米',2,'合'],['さつまいも',1.25,'本']],
+  16:[['米',2,'合'],['鯛',1,'尾']],
+  17:[['さつまいも',1.5,'本']],
+  18:[['牛豚合いびき肉',300,'g'],['ピーマン',8,'個'],['玉ねぎ',0.5,'個'],['卵',1,'個'],['パン粉（米粉パン粉）',20,'g']],
+  19:[['牛肉薄切り',400,'g'],['ごぼう',0.5,'本'],['人参',0.5,'本'],['さやいんげん',0.5,'パック']],
+  20:[['豚肩ロース',500,'g'],['玉ねぎ',1,'個'],['生姜',20,'g'],['紅茶',2,'袋']],
+  21:[['鶏ひき肉',400,'g'],['卵',3,'個'],['絹さや',1.25,'パック']],
+  22:[['卵',2,'個'],['長ねぎ',0.5,'本'],['出汁',800,'ml']],
+  23:[['なす',3,'本'],['ズッキーニ',1,'本'],['ピーマン',2,'個'],['パプリカ',1,'個'],['出汁',400,'ml']],
+  24:[['生鮭',4,'切れ'],['キャベツ',0.25,'個'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['しめじ',1,'パック'],['グラスフェッドバター',20,'g']],
+  25:[['米',2,'合'],['松茸',100,'g']],
+  26:[['ささみ',6,'本'],['そら豆',150,'g'],['春巻きの皮（米粉）',8,'枚']],
+  27:[['秋刀魚',4,'尾']],
+  28:[['米',2,'合'],['とうもろこし',2,'本']],
+  29:[['油揚げ',8,'枚'],['米',2,'合'],['白ごま',10,'g']],
+  30:[['米',2,'合'],['人参',0.5,'本'],['れんこん',0.5,'節'],['生椎茸',3,'枚'],['油揚げ',2,'枚'],['かんぴょう',20,'g'],['卵',2,'個']],
+  31:[['塩鮭',3,'切れ'],['米',2,'合'],['大葉',10,'枚'],['わかめ',10,'g']],
+  32:[['もち米',2,'合'],['鶏肉',150,'g'],['人参',0.5,'本'],['生椎茸',3,'枚'],['ごぼう',0.5,'本']],
+  33:[['豚ひき肉',400,'g'],['玉ねぎ',1,'個'],['ピーマン',3,'個'],['干しぶどう',30,'g'],['カレー粉（無添加スパイス）',15,'g'],['トマトペースト',60,'g']],
+  34:[['鶏肉',200,'g'],['トマト',2,'個'],['玉ねぎ',1,'個'],['セロリ',1,'本'],['人参',0.5,'本'],['トマトペースト',30,'g']],
+  35:[['牛ひき肉',200,'g'],['豚ひき肉',200,'g'],['キャベツ',8,'枚'],['玉ねぎ',1,'個'],['パン粉（米粉パン粉）',30,'g'],['卵',1,'個']],
+  36:[['牛ひき肉',250,'g'],['豚ひき肉',250,'g'],['玉ねぎ',1,'個'],['ピーマン',3,'個'],['パン粉（米粉パン粉）',30,'g'],['卵',1,'個'],['トマトペースト',60,'g']],
+  37:[['じゃが芋',3.25,'個'],['人参',0.5,'本'],['きゅうり',1,'本'],['鶏肉',100,'g'],['酢',15,'ml'],['マヨネーズ（無添加 or 自家製）',60,'g'],['りんご',1,'個']],
+  38:[['えびのすり身',400,'g']],
+  39:[['牛肉（オージーまたは国産）',800,'g']],
+  40:[['鶏ひき肉',400,'g'],['はんぺん（無添加）',1,'枚'],['青しそ',10,'枚'],['玉ねぎ',0.5,'個'],['卵',1,'個'],['梅干し',4,'個'],['チーズ（無添加）',60,'g'],['片栗粉',15,'g'],['無臭ココナッツオイル',30,'ml']],
+  41:[['えび',300,'g'],['玉ねぎ',1,'個'],['マッシュルーム',100,'g'],['生クリーム（添加物なしのもの）',200,'ml']],
+  42:[['牛肉',400,'g'],['玉ねぎ',2,'個'],['マッシュルーム',150,'g'],['トマトペースト',60,'g']],
+  43:[['牛豚合いびき肉',400,'g'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['セロリ',0.5,'本'],['トマトペースト',60,'g']],
+  44:[['牛ひき肉',300,'g'],['豚ひき肉',200,'g'],['玉ねぎ',1,'個'],['パン粉（米粉パン粉）',30,'g'],['ピーマン',2,'個'],['しいたけ',3,'枚'],['卵',1,'個']],
+  45:[['牛豚合いびき肉',400,'g'],['玉ねぎ',1,'個'],['パン粉（米粉パン粉）',30,'g'],['卵',1,'個']],
+  46:[['牛豚合いびき肉',400,'g'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['パン粉（米粉パン粉）',30,'g'],['卵',1,'個']],
+  47:[['牛肉',400,'g'],['玉ねぎ',2,'個'],['マッシュルーム',150,'g'],['サワークリーム',150,'ml']],
+  48:[['鶏肉',300,'g'],['ほうれん草',1,'束'],['玉ねぎ',1,'個'],['生クリーム（添加物なしのもの）',200,'ml']],
+  49:[['牛豚合いびき肉',300,'g'],['玉ねぎ',1,'個'],['トマトペースト',60,'g'],['ラザニアシート（米粉）',8,'枚'],['ベシャメルソース（米粉で自家製）',300,'ml']],
+  50:[['鶏肉',200,'g'],['玉ねぎ',1,'個'],['マカロニ',200,'g'],['生クリーム（添加物なしのもの）',200,'ml']],
+  51:[['じゃが芋',4,'個'],['牛豚合いびき肉',300,'g'],['玉ねぎ',1,'個'],['卵',2,'個'],['パン粉（米粉パン粉）',60,'g']],
+  52:[['鶏肉',200,'g'],['えび',200,'g'],['あさり',200,'g'],['パプリカ',1,'個'],['玉ねぎ',1,'個'],['米',2,'合'],['サフラン',1,'g']],
+  53:[['白身魚（鮭等）',4,'切れ'],['グラスフェッドバター',30,'g']],
+  54:[['じゃが芋',2.75,'個'],['長ねぎ',1,'本'],['生クリーム（添加物なしのもの）',200,'ml']],
+  55:[['かぼちゃ',0.5,'個'],['玉ねぎ',1,'個'],['生クリーム（添加物なしのもの）',200,'ml']],
+  56:[['白身魚',400,'g'],['あさり',200,'g'],['トマト',2,'個'],['しめじ',1,'パック'],['オリーブ',50,'g'],['にんにく',2,'片']],
+  57:[['白身魚',200,'g'],['えび',150,'g'],['イカ',150,'g'],['タコ',100,'g'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['セロリ',1,'本']],
+  58:[['卵',4,'個'],['生クリーム（添加物なしのもの）',200,'ml'],['ベーコン（無添加）',100,'g'],['玉ねぎ',1,'個'],['パイ生地（米粉）',1,'枚']],
+  59:[['キャベツ',0.25,'個'],['玉ねぎ',1,'個'],['ベーコン（無添加）',80,'g']],
+  60:[['鶏肉',400,'g'],['玉ねぎ',2,'個'],['トマト',2,'個'],['カレー粉（無添加スパイス）',15,'g']],
+  61:[['なす',2,'本'],['ズッキーニ',1,'本'],['パプリカ',1,'個'],['玉ねぎ',1,'個'],['トマト',2,'個'],['マッシュルーム',100,'g']],
+  62:[['牛肉',300,'g'],['キャベツ',0.25,'個'],['玉ねぎ',1,'個'],['人参',1,'本'],['じゃが芋',3,'個'],['セロリ',1,'本']],
+  63:[['とうもろこし',2,'本'],['じゃが芋',2,'個'],['玉ねぎ',1,'個'],['生クリーム（添加物なしのもの）',200,'ml']],
+  64:[['キャベツ',0.25,'個'],['人参',0.5,'本'],['酢',15,'ml'],['マヨネーズ（無添加 or 自家製）',60,'g']],
+  65:[['かぼちゃ',0.5,'個'],['マヨネーズ（無添加 or 自家製）',40,'g']],
+  66:[['さつまいも',1.5,'本'],['マヨネーズ（無添加 or 自家製）',40,'g']],
+  67:[['豚スペアリブ',1,'kg'],['オレンジマーマレード',100,'g']],
+  68:[['マカロニ',150,'g'],['きゅうり',1,'本'],['ハム（無添加）',80,'g'],['マヨネーズ（無添加 or 自家製）',60,'g']],
+  69:[['なす',4,'本'],['牛豚合いびき肉',300,'g'],['卵',1,'個'],['片栗粉',20,'g']],
+  70:[['牛豚合いびき肉',400,'g'],['玉ねぎ',1,'個'],['卵',1,'個'],['パン粉（米粉パン粉）',40,'g']],
+  71:[['トマト',3,'個'],['ズッキーニ',1,'本'],['パプリカ',1,'個'],['玉ねぎ',1,'個']],
+  72:[['鶏肉',200,'g'],['玉ねぎ',1,'個'],['マッシュルーム',100,'g'],['トマトペースト',30,'g'],['米',2,'合']],
+  73:[['鶏もも肉',500,'g'],['生姜',20,'g'],['にんにく',2,'片'],['卵',1,'個'],['片栗粉',60,'g']],
+  74:[['豚ひき肉',300,'g'],['キャベツ',0.25,'個'],['長ねぎ',1,'本'],['にら',0.5,'束'],['生姜',15,'g'],['餃子の皮（米粉）',30,'枚']],
+  75:[['鶏むね肉',400,'g'],['卵',1,'個'],['片栗粉',40,'g']],
+  76:[['豚肉',300,'g'],['春雨',40,'g'],['しいたけ',4,'枚'],['たけのこ',0.25,'本'],['春巻きの皮（米粉）',10,'枚']],
+  77:[['豚ひき肉',200,'g'],['豆腐',2,'丁'],['長ねぎ',1,'本'],['にんにく',2,'片'],['生姜',15,'g'],['豆板醤',15,'g']],
+  78:[['鶏むね肉',2,'枚'],['生姜',20,'g'],['長ねぎ',1,'本']],
+  79:[['鶏もも肉',2,'枚'],['にんにく',2,'片'],['生姜',20,'g'],['片栗粉',40,'g']],
+  80:[['えび',400,'g'],['長ねぎ',1,'本'],['生姜',15,'g'],['にんにく',2,'片'],['豆板醤',15,'g']],
+  81:[['豚肩ロース',400,'g'],['玉ねぎ',1,'個'],['ピーマン',2,'個'],['パプリカ',1,'個'],['パイナップル',150,'g']],
+  82:[['鶏肉',400,'g'],['玉ねぎ',1,'個'],['ピーマン',2,'個'],['パプリカ',1,'個'],['パイナップル',150,'g']],
+  83:[['豚ひき肉',200,'g'],['えびのすり身',150,'g'],['レタス',8,'枚']],
+  84:[['豚ひき肉',300,'g'],['えびのすり身',150,'g'],['玉ねぎ',0.5,'個']],
+  85:[['鶏ひき肉',200,'g'],['生姜',15,'g'],['長ねぎ',1,'本'],['春雨',40,'g']],
+  86:[['鶏手羽先',12,'本'],['にんにく',2,'片'],['生姜',15,'g'],['片栗粉',40,'g']],
+  87:[['豚バラ肉',300,'g'],['キャベツ',0.25,'個'],['ピーマン',3,'個'],['長ねぎ',1,'本'],['にんにく',2,'片'],['豆板醤',15,'g']],
+  88:[['牛肉または豚肉',300,'g'],['ピーマン',5,'個'],['たけのこ',0.5,'本']],
+  89:[['豚肉',150,'g'],['えび',150,'g'],['白菜',0.25,'個'],['人参',0.5,'本'],['生椎茸',3,'枚'],['たけのこ',0.25,'本'],['うずら卵',8,'個']],
+  90:[['卵',3,'個'],['長ねぎ',1,'本'],['焼き豚または無添加ハム',100,'g'],['米',2,'合']],
+  91:[['卵',4,'個'],['かに身（本物、または無添加かまぼこ）',100,'g'],['長ねぎ',1,'本']],
+  92:[['豚ひき肉',400,'g'],['玉ねぎ',1,'個'],['卵',1,'個'],['パプリカ',1,'個'],['ピーマン',2,'個']],
+  93:[['豚肉',150,'g'],['えび',100,'g'],['イカ',100,'g'],['ピーマン',2,'個'],['玉ねぎ',0.5,'個'],['キクラゲ',10,'g'],['長ねぎ',0.5,'本'],['人参',0.5,'本'],['生椎茸',3,'枚'],['たけのこ',0.25,'本'],['うずら卵',8,'個']],
+  94:[['ゴーヤ',1,'本'],['豆腐',1,'丁'],['豚バラ肉',200,'g'],['卵',2,'個']],
+  95:[['キャベツ',0.25,'個']],
+  96:[['にんじん',0.5,'本'],['干ししいたけ',4,'枚'],['たけのこ',0.25,'本'],['れんこん',0.5,'節'],['蒸し大豆',150,'g'],['さつま揚げ（無添加）',2,'枚']],
+  97:[['えびのすり身',300,'g']],
+  98:[['鶏もも肉',300,'g'],['卵',4,'個'],['玉ねぎ',1,'個'],['三つ葉',1,'束'],['米',2,'合']],
+  99:[['豚ロースカツ',4,'枚'],['卵',4,'個'],['玉ねぎ',1,'個'],['米',2,'合']],
+  100:[['たら',4,'切れ'],['玉ねぎ',1,'個'],['人参',0.5,'本'],['ピーマン',2,'個']],
+  101:[['白身魚（鱈など）',300,'g'],['はんぺん（無添加）',1,'枚'],['豆腐',0.5,'丁'],['生姜',15,'g'],['長ねぎ',0.5,'本'],['卵',1,'個'],['片栗粉',15,'g']],
+  102:[['鶏もも肉',400,'g'],['卵',4,'個'],['黒酢',60,'ml'],['生姜',15,'g']],
+  103:[['鶏ひき肉',400,'g'],['パプリカ',1,'個'],['玉ねぎ',1,'個'],['バジル',1,'束']],
+  104:[['高野豆腐',60,'g'],['鶏ひき肉',150,'g'],['人参',0.5,'本'],['出汁',400,'ml']],
+  105:[['牛ひき肉',400,'g'],['豆',300,'g'],['玉ねぎ',1,'個'],['トマト',2,'個']],
+  106:[['鶏むね肉',300,'g'],['きゅうり',2,'本'],['豆腐',1,'丁'],['大葉',10,'枚'],['みょうが',3,'個'],['すりごま',30,'g'],['出汁',600,'ml']],
+  107:[['しらす',60,'g'],['ピーマン',3,'個'],['白ごま',5,'g']],
+};
+/* ═══════════════════════════════════════════════════════
+   INGREDIENT GROUPING (買い物リスト用カテゴリ分け)
+═══════════════════════════════════════════════════════ */
+const SHOP_GROUPS={
+  meat:    {label:'肉',     emoji:'🥩',keywords:['鶏','豚','牛','合いびき','ひき肉','ハム','ベーコン','ロース','スペアリブ','手羽','焼き豚','薄切り']},
+  fish:    {label:'魚介',   emoji:'🐟',keywords:['鯵','鯛','鮭','秋刀魚','たら','白身魚','えび','あさり','イカ','タコ','しらす','はんぺん','かに','すり身','蒲鉾','かまぼこ','魚']},
+  veg:     {label:'野菜',   emoji:'🥬',keywords:['玉ねぎ','人参','じゃが','大根','ごぼう','れんこん','長ねぎ','キャベツ','白菜','ピーマン','パプリカ','なす','ズッキーニ','トマト','ほうれん草','レタス','きゅうり','セロリ','三つ葉','大葉','青しそ','バジル','みょうが','絹さや','さやいんげん','ゴーヤ','たけのこ','里芋','さつまいも','かぼちゃ','切り干し大根','にんにく','生姜','長','野菜']},
+  mush:    {label:'きのこ', emoji:'🍄',keywords:['椎茸','しいたけ','しめじ','えのき','舞茸','マッシュルーム','キクラゲ','松茸','干ししいたけ','きのこ']},
+  egg:     {label:'卵・乳製品',emoji:'🥚',keywords:['卵','たまご','うずら卵','錦糸卵','バター','チーズ','生クリーム','サワークリーム','牛乳']},
+  rice:    {label:'米・主食', emoji:'🌾',keywords:['米','もち米','酢飯','ご飯','マカロニ','春雨','ラザニア','春巻きの皮','餃子の皮','パイ生地','パン粉','米粉']},
+  bean:    {label:'豆・大豆製品',emoji:'🌱',keywords:['豆腐','油揚げ','さつま揚げ','おから','煮大豆','蒸し大豆','高野豆腐','豆','大豆']},
+  season:  {label:'乾物・調味',emoji:'🧂',keywords:['ひじき','わかめ','かんぴょう','干しぶどう','白ごま','すりごま','ごま','カレー粉','スパイス','黒酢','酢','豆板醤','サフラン','片栗粉','薄力粉','梅干し','オリーブ','紅茶','パイナップル','りんご','マーマレード','ピーナッツ']},
+  oil:     {label:'油脂',   emoji:'🫒',keywords:['オリーブオイル','ココナッツオイル','油','ごま油','マヨネーズ','ベシャメル']},
+  bouillon:{label:'だし・ブイヨン',emoji:'🍵',keywords:['出汁','だし','ブイヨン','コンソメ','白だし']},
+  other:   {label:'その他', emoji:'📦',keywords:[]},
+};
+
+/* 食材名 → グループ判定 */
+function catIngr(name){
+  for(const[k,v]of Object.entries(SHOP_GROUPS)){
+    if(k==='other')continue;
+    for(const kw of v.keywords){
+      if(name.includes(kw))return k;
+    }
+  }
+  return 'other';
+}
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let currentPage='home';
+let selectedRecipes=new Set();
+let favorites=new Set();
+let customSrv=4;
+let checkedItems={};
+let recipeMemos={};      // {recipeId: 'メモ文字列'}
+let recipeServings={};   // {recipeId: 人数}  ※未設定なら共通のcustomSrvを使う
+let userAmounts={};      // {recipeId: [[name,qty,unit],...]}  ※ユーザー編集の食材データ
+let userRecipeNames={};  // {recipeId: '編集後の料理名'}  ※既存レシピの名前変更
+let userRecipeCats={};   // {recipeId: 'カテゴリキー'}  ※既存レシピのカテゴリ変更
+let customRecipes=[];    // ユーザーが追加したレシピ {id, name, cat, ing}
+let nextCustomId=10001;  // カスタムレシピのID（既存と衝突しないよう10000以上）
+
+/* お気に入りはlocalStorage的ストレージなしで保持(セッション内) */
+
+/* ═══════════════════════════════════════════════════════
+   NAV / PAGES
+═══════════════════════════════════════════════════════ */
+function show(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(el=>el.classList.remove('active'));
+  const navMap={fav:'nav-fav',select:'nav-select',shop:'nav-shop'};
+  const nav=document.getElementById(navMap[p]);if(nav)nav.classList.add('active');
+  currentPage=p;
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(p==='fav')renderFav();
+  if(p==='select')renderCustomSelector();
+  if(p==='shop')renderShop();
+}
+
+function toggleMobile(){/* removed */}
+
+/* ═══════════════════════════════════════════════════════
+   HOME — Recipe Grid
+═══════════════════════════════════════════════════════ */
+function buildCard(r){
+  const cat=CATS[getRecipeCat(r)];
+  const isFav=favorites.has(r.id);
+  const isSeasonal=getRecipeName(r).includes('（時季）')||getRecipeName(r).includes('（夏季）');
+  const seasonBadge=isSeasonal?'<span class="season-badge">季節</span>':'';
+  return `<div class="recipe-card" onclick="openModal(${r.id})">
+    <div class="card-photo ph ph-${getRecipeCat(r)}">
+      <span class="ph-emoji">${cat.emoji}</span>
+      <span class="card-cat">${cat.label}</span>
+      <div class="card-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav(${r.id},this)">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="card-name">${getRecipeName(r).replace(/（時季）|（夏季）/,'').trim()}</div>
+      <div class="card-sub">${r.desc}</div>
+      <div class="card-meta">
+        <div class="card-diff">${[1,2,3].map(i=>`<span class="diff-dot ${i<=r.diff?'on':''}"></span>`).join('')}</div>
+        <span class="card-time">${r.time}分</span>
+        ${seasonBadge}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderHome(){
+  // カテゴリピル
+  const counts={};RECIPES.forEach(r=>counts[r.cat]=(counts[r.cat]||0)+1);
+  const pills=document.getElementById('home-cat-pills');
+  pills.innerHTML=`<button class="cat-pill active" onclick="homeFilter('',this)"><span>すべて</span><span class="count">${RECIPES.length}</span></button>`+
+    Object.entries(CATS).map(([k,v])=>{
+      const c=counts[k]||0;
+      if(!c)return'';
+      return `<button class="cat-pill" onclick="homeFilter('${k}',this)"><span class="dot" style="background:${v.color}"></span><span>${v.label}</span><span class="count">${c}</span></button>`;
+    }).join('');
+  // カテゴリselect
+  const sel=document.getElementById('filter-cat');
+  if(sel.options.length<=1){
+    Object.entries(CATS).forEach(([k,v])=>{
+      const o=document.createElement('option');o.value=k;o.text=v.label;sel.appendChild(o);
+    });
+  }
+  applyFilter();
+}
+
+function homeFilter(cat,btn){
+  document.querySelectorAll('#home-cat-pills .cat-pill').forEach(p=>p.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  document.getElementById('filter-cat').value=cat;
+  applyFilter();
+}
+
+function applyFilter(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  const cat=document.getElementById('filter-cat').value;
+  const t=parseInt(document.getElementById('filter-time').value)||0;
+  const res=RECIPES.filter(r=>{
+    if(cat&&r.cat!==cat)return false;
+    if(t&&r.time>t)return false;
+    if(q){
+      const hay=(getRecipeName(r)+' '+r.desc+' '+(r.ing||[]).join(' ')).toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+  document.getElementById('home-grid').innerHTML=res.map(buildCard).join('');
+  document.getElementById('home-no-results').style.display=res.length?'none':'block';
+  document.getElementById('filter-count').textContent=`${res.length}品`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FAVORITES
+═══════════════════════════════════════════════════════ */
+function toggleFav(id,btn){
+  if(favorites.has(id)){favorites.delete(id);btn.classList.remove('on');}
+  else{favorites.add(id);btn.classList.add('on');}
+  if(currentPage==='fav')renderFav();
+}
+
+function renderFav(){
+  const list=getAllRecipes().filter(r=>favorites.has(r.id));
+  const cntEl=document.getElementById('fav-count');
+  if(cntEl)cntEl.textContent=list.length;
+  const wrap=document.getElementById('fav-list-wrap');
+  if(!wrap)return;
+  if(!list.length){
+    wrap.innerHTML=`<div style="text-align:center;padding:80px 20px;color:var(--mut);font-family:'Shippori Mincho',serif">
+      <div style="font-size:2.5rem;opacity:.4;margin-bottom:14px">♡</div>
+      <div style="font-size:.95rem;margin-bottom:6px">まだお気に入りはありません</div>
+      <div style="font-size:.82rem">献立ページの♡マークで追加できます</div>
+    </div>`;
+    return;
+  }
+  // カテゴリ別グルーピング
+  const order=['washoku','chuka','yoshoku','rice','soup','side','other'];
+  const groups={};
+  list.forEach(r=>{
+    const _cat=getRecipeCat(r); if(!groups[_cat])groups[_cat]=[];
+    groups[_cat].push(r);
+  });
+  wrap.innerHTML=order.filter(k=>groups[k]).map(k=>{
+    const cat=CATS[k];
+    const items=groups[k].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return`<div class="sel-cat-group">
+      <div class="sel-cat-head">
+        <span class="sel-cat-mark" style="background:${cat.color}"></span>
+        <span class="sel-cat-emoji">${cat.emoji}</span>
+        <span class="sel-cat-title">${cat.label}</span>
+        <span class="sel-cat-count">${items.length}</span>
+      </div>
+      <div class="sel-list">
+        ${items.map(r=>{
+          const isSel=selectedRecipes.has(r.id);
+          const isSeason=getRecipeName(r).includes('（時季）')||getRecipeName(r).includes('（夏季）');
+          const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
+          return`<div class="sel-row ${isSel?'sel-on':''}">
+            <input type="checkbox" class="sel-cb" id="fav-sc-${r.id}" ${isSel?'checked':''} onclick="event.stopPropagation()" onchange="onRecipeSel(${r.id},this)">
+            <span class="sel-name" onclick="openModal(${r.id})">${dispName}</span>
+            ${isSeason?'<span class="sel-season">季節</span>':''}
+            <button class="sel-fav on" onclick="event.stopPropagation();toggleFavSel(${r.id},this);renderFav()" title="お気に入りから外す">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL — Recipe Detail
+═══════════════════════════════════════════════════════ */
+function openModal(id){
+  const r=getRecipeById(id);if(!r)return;
+  const cat=CATS[getRecipeCat(r)];
+  const isFav=favorites.has(id);
+  // 調味料注記
+  const seasoningNote=getSeasoningNote(r);
+  // 編集中の食材データ（または基準データ）を取得
+  const editedAmounts = userAmounts[r.id] || AMOUNTS[r.id] || [];
+  // AMOUNTSに含まれない食材（材料リストにあるが分量未登録）も並べる
+  const knownNames = new Set(editedAmounts.map(a=>a[0]));
+  const extraIngs = (r.ing||[]).filter(n=>!knownNames.has(n));
+  const allIngs = [...editedAmounts, ...extraIngs.map(n=>[n,'',''])];
+  const ingHTML = allIngs.map((item, idx)=>{
+    const [name, qty, unit] = item;
+    return buildIngRow(r.id, idx, name, qty, unit);
+  }).join('');
+  const memoHTML=r.memo?`<div class="modal-memo"><span class="lb">メモ:</span>${r.memo}</div>`:'';
+  const tipHTML=seasoningNote?`<div class="modal-tip"><span class="lb">無添加仕様の補足:</span>${seasoningNote}</div>`:'';
+
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-photo ph-${getRecipeCat(r)}">
+      <span class="ph-emoji">${cat.emoji}</span>
+      <div class="modal-photo-content">
+        <span class="modal-photo-cat">${cat.label}</span>
+        <h2 class="modal-h2" onclick="editRecipeName(${r.id})">${getRecipeName(r)} <span class="edit-icon" title="クリックで編集">✎</span></h2>
+      </div>
+      <button class="modal-close" onclick="closeModal()"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" fill="none"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-meta">
+        <div class="modal-meta-item">
+          <span class="lb">カテゴリ</span>
+          <select class="cat-select" onchange="changeRecipeCat(${r.id},this.value)">${Object.entries(CATS).map(([k,v])=>`<option value="${k}" ${k===getRecipeCat(r)?'selected':''}>${v.emoji} ${v.label}</option>`).join('')}</select>
+        </div>
+        <div class="modal-meta-item"><span class="lb">分量</span><span>4人分（基準）</span></div>
+        <div class="modal-meta-item" style="margin-left:auto;gap:6px">
+          <button class="btn-ghost" onclick="toggleFavModal(${r.id})">${isFav?'♥ お気に入り済':'♡ お気に入り'}</button>
+          ${isCustomRecipe(r) ? `<button class="btn-ghost btn-danger" onclick="deleteCustomRecipe(${r.id})">🗑 削除</button>` : ''}
+        </div>
+      </div>
+      ${r.desc?`<p style="font-size:.9rem;color:var(--ink2);margin-bottom:24px;line-height:1.8">${r.desc}</p>`:''}
+      <div class="modal-cols">
+        <div class="modal-section">
+          <h3>主な材料 <span class="ing-srv-note">(4人分の基準量)</span></h3>
+          <div class="ing-list" id="ing-list-${r.id}">${ingHTML}</div>
+          <div class="ing-actions">
+            <button class="btn-ghost ing-add" onclick="addIngRow(${r.id})">＋ 食材を追加</button>
+            <button class="btn-ghost ing-reset" onclick="resetIngredients(${r.id})">基準に戻す</button>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h3>メモ</h3>
+          <textarea class="recipe-memo" id="memo-${r.id}" placeholder="この料理についてのメモを書いておくと、PDFにも反映されます（例: 子ども用は甘めに / 大三さんは多め / にんにく多め 等）" oninput="saveMemo(${r.id},this.value)">${(recipeMemos[r.id]||'')}</textarea>
+          ${tipHTML}
+          ${memoHTML}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function toggleFavModal(id){
+  if(favorites.has(id))favorites.delete(id);
+  else favorites.add(id);
+  openModal(id); // モーダル再描画
+  // 背面ページも更新
+  if(currentPage==='select')renderCustomSelector();
+  if(currentPage==='fav')renderFav();
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function saveMemo(id,val){
+  if(val&&val.trim()){
+    recipeMemos[id]=val;
+  }else{
+    delete recipeMemos[id];
+  }
+}
+
+/* ─── 食材編集 ─── */
+const UNIT_OPTIONS = ['g','ml','kg','個','本','枚','片','尾','切れ','丁','束','合','袋','パック','缶','節','株','房','その他'];
+
+function buildIngRow(rid, idx, name, qty, unit){
+  const unitOpts = UNIT_OPTIONS.map(u=>`<option value="${u}" ${u===unit?'selected':''}>${u}</option>`).join('');
+  const customUnit = unit && !UNIT_OPTIONS.includes(unit) ? unit : '';
+  return `<div class="ing-row" data-idx="${idx}">
+    <input type="text" class="ing-name-input" value="${escapeAttr(name)}" placeholder="食材名" oninput="updateIng(${rid},${idx},'name',this.value)">
+    <input type="text" class="ing-qty-input" value="${qty===''||qty===undefined?'':qty}" placeholder="量" oninput="updateIng(${rid},${idx},'qty',this.value)">
+    <select class="ing-unit-input" onchange="updateIng(${rid},${idx},'unit',this.value)">
+      <option value="" ${!unit?'selected':''}>—</option>
+      ${unitOpts}
+    </select>
+    <button class="ing-rm" onclick="removeIngRow(${rid},${idx})" title="削除">×</button>
+  </div>`;
+}
+
+function escapeAttr(s){
+  return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+/* ─── 全レシピ取得（既存 + カスタム、名前は編集後優先） ─── */
+function getAllRecipes(){
+  return [...RECIPES, ...customRecipes];
+}
+
+function getRecipeById(id){
+  return getAllRecipes().find(r=>r.id===id);
+}
+
+function getRecipeName(r){
+  return userRecipeNames[r.id] || r.name;
+}
+
+function getRecipeCat(r){
+  return userRecipeCats[r.id] || r.cat;
+}
+
+function isCustomRecipe(r){
+  return r.id >= 10000;
+}
+
+/* 食材の現在の状態を取得（編集中なら編集後、未編集ならAMOUNTSから） */
+function getCurrentIngs(rid){
+  if(userAmounts[rid]) return [...userAmounts[rid]];
+  const base = AMOUNTS[rid] ? AMOUNTS[rid].map(a=>[...a]) : [];
+  const recipe = getRecipeById(rid);
+  if(recipe){
+    const knownNames = new Set(base.map(a=>a[0]));
+    recipe.ing.forEach(n=>{
+      if(!knownNames.has(n)) base.push([n,'','']);
+    });
+  }
+  return base;
+}
+
+function updateIng(rid, idx, field, val){
+  if(!userAmounts[rid]) userAmounts[rid] = getCurrentIngs(rid);
+  const row = userAmounts[rid][idx];
+  if(!row) return;
+  if(field==='name') row[0] = val;
+  else if(field==='qty'){
+    // 数値以外もそのまま許可（空文字や分数も）
+    const num = parseFloat(val);
+    row[1] = isNaN(num) ? val : num;
+  }
+  else if(field==='unit') row[2] = val;
+}
+
+function addIngRow(rid){
+  if(!userAmounts[rid]) userAmounts[rid] = getCurrentIngs(rid);
+  userAmounts[rid].push(['','','g']);
+  // モーダル再描画
+  openModal(rid);
+}
+
+function removeIngRow(rid, idx){
+  if(!userAmounts[rid]) userAmounts[rid] = getCurrentIngs(rid);
+  userAmounts[rid].splice(idx, 1);
+  openModal(rid);
+}
+
+function resetIngredients(rid){
+  if(!confirm('この料理の食材を基準量に戻しますか？編集内容は失われます。'))return;
+  delete userAmounts[rid];
+  openModal(rid);
+}
+
+/* ─── 料理名の編集 ─── */
+function editRecipeName(rid){
+  const r = getRecipeById(rid);
+  if(!r) return;
+  const currentName = getRecipeName(r);
+  const newName = prompt('料理名を編集', currentName);
+  if(newName === null) return; // キャンセル
+  const trimmed = newName.trim();
+  if(!trimmed){
+    alert('料理名を入力してください');
+    return;
+  }
+  if(isCustomRecipe(r)){
+    // カスタムレシピは直接書き換え
+    r.name = trimmed;
+  }else{
+    if(trimmed === r.name){
+      delete userRecipeNames[rid]; // 元と同じならクリア
+    }else{
+      userRecipeNames[rid] = trimmed;
+    }
+  }
+  openModal(rid);
+  // 背面ページも更新
+  if(currentPage==='select')renderCustomSelector();
+  if(currentPage==='fav')renderFav();
+}
+
+/* ─── カスタムレシピ削除 ─── */
+function deleteCustomRecipe(rid){
+  const r = getRecipeById(rid);
+  if(!r || !isCustomRecipe(r)) return;
+  if(!confirm(`「${getRecipeName(r)}」を削除しますか？この操作は元に戻せません。`)) return;
+  const idx = customRecipes.findIndex(x=>x.id===rid);
+  if(idx >= 0) customRecipes.splice(idx, 1);
+  selectedRecipes.delete(rid);
+  favorites.delete(rid);
+  delete recipeServings[rid];
+  delete recipeMemos[rid];
+  delete userAmounts[rid];
+  delete userRecipeNames[rid];
+  closeModal();
+  if(currentPage==='select')renderCustomSelector();
+  if(currentPage==='fav')renderFav();
+}
+
+/* ─── レシピのカテゴリ変更（既存・カスタム両方） ─── */
+function changeRecipeCat(rid, newCat){
+  const r = getRecipeById(rid);
+  if(!r) return;
+  if(isCustomRecipe(r)){
+    r.cat = newCat;
+  }else{
+    if(newCat === r.cat){
+      delete userRecipeCats[rid];
+    }else{
+      userRecipeCats[rid] = newCat;
+    }
+  }
+  if(currentPage==='select')renderCustomSelector();
+  if(currentPage==='fav')renderFav();
+}
+
+/* ─── 新規メニュー追加（手動入力） ─── */
+function addNewRecipe(){
+  const name = prompt('追加する料理名を入力してください');
+  if(!name || !name.trim()) return;
+  const trimmedName = name.trim();
+
+  const newId = nextCustomId++;
+  const newRecipe = {
+    id: newId,
+    name: trimmedName,
+    cat: 'other',
+    desc: '',
+    ing: [],
+    diff: 2,
+    time: 25
+  };
+  customRecipes.push(newRecipe);
+  userAmounts[newId] = [['', '', 'g']]; // 空の食材1行
+  openModal(newId);
+  if(currentPage==='select')renderCustomSelector();
+}
+
+/* 調味料に応じた無添加版の補足を生成 */
+function getSeasoningNote(r){
+  const notes=[];
+  const text=r.ing.join('');
+  if(text.includes('ブイヨン')||text.includes('コンソメ'))notes.push('チキン or 野菜ブイヨンは自家製・無添加のもの');
+  if(text.includes('米粉')||text.includes('パン粉')||text.includes('春巻きの皮')||text.includes('餃子の皮')||text.includes('パイ生地')||text.includes('ラザニアシート'))notes.push('粉物・皮類はすべて米粉系');
+  if(text.includes('ココナッツオイル'))notes.push('炒め物・揚げ物は無臭ココナッツオイル');
+  if(text.includes('無添加'))notes.push('加工肉・乳製品は無添加品を選択');
+  // 和食では出汁の種類を案内
+  if(getRecipeCat(r)==='washoku'&&text.includes('出汁')){
+    notes.push('出汁は「昆布」「昆布鰹合わせ」「いりこ」から料理に合うものを選択');
+  }
+  return notes.join('。')+(notes.length?'。':'');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECTION (カテゴリ別グルーピング表示)
+═══════════════════════════════════════════════════════ */
+let collapsedCats=new Set(); // 折りたたみ中のカテゴリ
+
+function renderCustomSelector(){
+  const searchEl = document.getElementById('sel-search');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  // 検索フィルター
+  const filterFn = (r)=>{
+    if(!q) return true;
+    const hay = (getRecipeName(r) + ' ' + (r.desc||'') + ' ' + (r.ing||[]).join(' ')).toLowerCase();
+    return hay.includes(q);
+  };
+  const order=['washoku','chuka','yoshoku','rice','soup','side','other'];
+  const groups={};
+  RECIPES.filter(filterFn);  // 互換: 元参照は残してgetAllRecipesで上書き
+  getAllRecipes().filter(filterFn).forEach(r=>{
+    const _cat=getRecipeCat(r); if(!groups[_cat])groups[_cat]=[];
+    groups[_cat].push(r);
+  });
+  const wrap=document.getElementById('sel-groups');
+  if(!wrap) return;
+  // 検索結果ゼロ
+  if(q && Object.keys(groups).length === 0){
+    wrap.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--mut);font-family:'Shippori Mincho',serif">「${escapeAttr(q)}」に一致する料理はありません</div>`;
+    updateSelCount();
+    return;
+  }
+  wrap.innerHTML=order.filter(k=>groups[k]).map(k=>{
+    const cat=CATS[k];
+    const list=groups[k].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    const selN=list.filter(r=>selectedRecipes.has(r.id)).length;
+    // 検索中は強制展開
+    const isCollapsed = !q && collapsedCats.has(k);
+    return`<div class="sel-cat-group">
+      <div class="sel-cat-head">
+        <span class="sel-cat-mark" style="background:${cat.color}"></span>
+        <span class="sel-cat-emoji">${cat.emoji}</span>
+        <span class="sel-cat-title">${cat.label}</span>
+        <span class="sel-cat-count">${selN}/${list.length}</span>
+        <button class="sel-cat-toggle" onclick="toggleCatAll('${k}')">${selN===list.length?'全解除':'全選択'}</button>
+        <button class="sel-cat-toggle" onclick="toggleCatCollapse('${k}')">${isCollapsed?'＋':'−'}</button>
+      </div>
+      ${isCollapsed?'':`<div class="sel-list">
+        ${list.map(r=>{
+          const isSel=selectedRecipes.has(r.id);
+          const isFav=favorites.has(r.id);
+          const isSeason=getRecipeName(r).includes('（時季）')||getRecipeName(r).includes('（夏季）');
+          const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
+          return`<div class="sel-row ${isSel?'sel-on':''}">
+            <input type="checkbox" class="sel-cb" id="sc-${r.id}" ${isSel?'checked':''} onclick="event.stopPropagation()" onchange="onRecipeSel(${r.id},this)">
+            <span class="sel-name" onclick="openModal(${r.id})">${dispName}</span>
+            ${isSeason?'<span class="sel-season">季節</span>':''}
+            <button class="sel-fav ${isFav?'on':''}" onclick="event.stopPropagation();toggleFavSel(${r.id},this)" title="お気に入り">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>`;
+        }).join('')}
+      </div>`}
+    </div>`;
+  }).join('');
+  updateSelCount();
+}
+
+function toggleFavSel(id, btn){
+  if(favorites.has(id)){
+    favorites.delete(id);
+    btn.classList.remove('on');
+  }else{
+    favorites.add(id);
+    btn.classList.add('on');
+  }
+}
+
+function toggleCatCollapse(k){
+  if(collapsedCats.has(k))collapsedCats.delete(k);
+  else collapsedCats.add(k);
+  renderCustomSelector();
+}
+
+function toggleCatAll(k){
+  const list=getAllRecipes().filter(r=>getRecipeCat(r)===k);
+  const allSel=list.every(r=>selectedRecipes.has(r.id));
+  list.forEach(r=>{
+    if(allSel)selectedRecipes.delete(r.id);
+    else selectedRecipes.add(r.id);
+  });
+  renderCustomSelector();
+}
+
+function expandAllCats(expand){
+  if(expand)collapsedCats.clear();
+  else Object.keys(CATS).forEach(k=>collapsedCats.add(k));
+  renderCustomSelector();
+}
+
+function onRecipeSel(id,cb){
+  if(cb.checked)selectedRecipes.add(id);
+  else selectedRecipes.delete(id);
+  const row=cb.closest('.sel-row');
+  if(row)row.classList.toggle('sel-on',cb.checked);
+  // カウント更新（カテゴリヘッダーも）
+  renderCustomSelector();
+}
+
+function updateSelCount(){
+  const n=selectedRecipes.size;
+  const lbl=document.getElementById('sel-count-lbl');
+  if(lbl)lbl.textContent=n?`${n}品 選択中`:'0品 選択中';
+}
+
+function clearSelection(){
+  selectedRecipes.clear();
+  renderCustomSelector();
+}
+
+/* ═══════════════════════════════════════════════════════
+   SHOPPING LIST
+═══════════════════════════════════════════════════════ */
+function adjSrv(d){
+  customSrv=Math.max(1,Math.min(20,customSrv+d));
+  document.getElementById('srv-disp').textContent=customSrv;
+  renderShop();
+}
+
+/* ─── 食材集約：料理ごとの人数を考慮し、単位ごとに合算 ─── */
+function aggregateIngredients(pool){
+  // 4人分のAMOUNTSを基準にして、人数倍率でスケール
+  const SCALE_BASE = 4;
+  const agg = {};  // {食材名: {name, group, units:{単位:値}, recipes:[...]}}
+  pool.forEach(r=>{
+    const srv = recipeServings[r.id] || customSrv;
+    const ratio = srv / SCALE_BASE;
+    // ユーザー編集があればそれを、なければAMOUNTSを使う
+    const amountList = userAmounts[r.id] || AMOUNTS[r.id] || [];
+    amountList.forEach(([ingName, qty, unit])=>{
+      // 空の行や数値でないqtyはスキップ
+      if(!ingName || !ingName.trim()) return;
+      const qtyNum = typeof qty === 'number' ? qty : parseFloat(qty);
+      if(isNaN(qtyNum) || !unit){
+        // 分量がない場合は人数情報のみで載せる
+        if(!agg[ingName]){
+          agg[ingName] = {name:ingName, group:catIngr(ingName), units:{}, recipes:[]};
+        }
+        agg[ingName].recipes.push({
+          name: getRecipeName(r).replace(/（時季）|（夏季）/,'').trim(),
+          qty: '?', unit: '', srv: srv
+        });
+        return;
+      }
+      const scaledQty = qtyNum * ratio;
+      if(!agg[ingName]){
+        agg[ingName] = {name:ingName, group:catIngr(ingName), units:{}, recipes:[]};
+      }
+      if(agg[ingName].units[unit] === undefined){
+        agg[ingName].units[unit] = 0;
+      }
+      agg[ingName].units[unit] += scaledQty;
+      agg[ingName].recipes.push({
+        name: getRecipeName(r).replace(/（時季）|（夏季）/,'').trim(),
+        qty: round2(scaledQty),
+        unit: unit,
+        srv: srv
+      });
+    });
+    // 編集データにない、レシピingのみの食材
+    const knownNames = new Set(amountList.map(a=>a[0]));
+    r.ing.forEach(ingName=>{
+      if(!knownNames.has(ingName) && !agg[ingName]){
+        agg[ingName] = {
+          name: ingName, group: catIngr(ingName),
+          units: {}, recipes: [], noAmount: true
+        };
+      }
+    });
+  });
+  return agg;
+}
+
+/* 単位ごとに合算した値を表示用にフォーマット */
+function formatAggregated(units){
+  if(!units || Object.keys(units).length === 0) return '—';
+  const parts = [];
+  // 単位の順序: g > ml > kg > 個 > 本 > 枚 > その他
+  const unitOrder = ['g','ml','kg','個','本','枚','片','尾','切れ','丁','束','合','袋','パック','缶','節','株','房'];
+  const sortedUnits = Object.keys(units).sort((a,b)=>{
+    const ai = unitOrder.indexOf(a); const bi = unitOrder.indexOf(b);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+  sortedUnits.forEach(u=>{
+    const v = units[u];
+    parts.push(`${formatQty(v, u)}${u}`);
+  });
+  return parts.join(' + ');
+}
+
+/* 数値の丸め（小数点1桁、整数なら整数で） */
+function formatQty(v, unit){
+  // 重量・容量系は5の倍数で丸めると見やすい
+  if(['g','ml'].includes(unit)){
+    return Math.round(v / 5) * 5;
+  }
+  if(unit === 'kg'){
+    return round2(v);
+  }
+  // 個数系: 0.5刻みで
+  const rounded = Math.round(v * 2) / 2;
+  if(rounded === Math.floor(rounded)) return rounded;
+  return rounded;
+}
+
+function round2(n){return Math.round(n*100)/100}
+
+function renderShop(){
+  const n=selectedRecipes.size;
+  const title=document.getElementById('shop-title');
+  const sub=document.getElementById('shop-sub');
+  const note=document.getElementById('shop-note');
+  const empty=document.getElementById('shop-empty');
+  const grid=document.getElementById('shop-grid');
+  const menusEl=document.getElementById('shop-menus');
+  const footer=document.getElementById('shop-footer');
+  if(!n){
+    title.textContent='買い物リスト';
+    sub.textContent='献立を選択してください';
+    note.style.display='none';
+    empty.style.display='flex';
+    grid.style.display='none';
+    menusEl.style.display='none';
+    footer.style.display='none';
+    return;
+  }
+  title.textContent=`${n}品の献立`;
+  sub.textContent=`デフォルト人数を変更すると、個別に人数を設定していない料理が一括で変わります`;
+  if(customSrv!==4){
+    note.style.display='block';
+    note.innerHTML=`デフォルト <strong>${customSrv}人分</strong>（基準: 4人分）`;
+  }else{
+    note.style.display='none';
+  }
+  empty.style.display='none';
+  grid.style.display='grid';
+  menusEl.style.display='block';
+
+  // ── 献立一覧（料理ごとの人数調整） ──
+  const pool=getAllRecipes().filter(r=>selectedRecipes.has(r.id));
+  const catOrder=['washoku','chuka','yoshoku','rice','soup','side','other'];
+  const menusHTML=`<div class="menus-block">
+    <div class="menus-block-head">
+      <h4>献立 ${pool.length}品</h4>
+      <span class="sub">各料理の人数を個別に設定できます</span>
+    </div>
+    ${catOrder.filter(c=>pool.some(r=>getRecipeCat(r)===c)).map(c=>{
+      const cat=CATS[c];
+      const list=pool.filter(r=>getRecipeCat(r)===c).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+      return`<div class="menus-cat-section">
+        <div class="menus-cat-label"><span class="mk" style="background:${cat.color}"></span>${cat.label}</div>
+        ${list.map(r=>{
+          const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
+          const srv=recipeServings[r.id]||customSrv;
+          const isCustom=recipeServings[r.id]!==undefined&&recipeServings[r.id]!==customSrv;
+          const memo=recipeMemos[r.id]||'';
+          const memoDisp=memo?`<span class="menu-row-memo" title="${memo.replace(/"/g,'&quot;')}">📝 ${memo}</span>`:'';
+          return`<div class="menu-row">
+            <span class="menu-row-name">${dispName}</span>
+            ${memoDisp}
+            <div class="menu-row-srv">
+              <button class="srv-mini" onclick="adjRecipeSrv(${r.id},-1)">−</button>
+              <span class="srv-num ${isCustom?'srv-custom':''}">${srv}</span><span class="srv-unit">人</span>
+              <button class="srv-mini" onclick="adjRecipeSrv(${r.id},1)">+</button>
+            </div>
+            <button class="menu-row-rm" onclick="removeRecipe(${r.id})" title="献立から外す">×</button>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('')}
+  </div>`;
+  menusEl.innerHTML=menusHTML;
+
+  // ── 食材を集約（料理ごとの人数を考慮、分量も計算） ──
+  // 同じ食材は単位ごとに合算
+  // 構造: agg[食材名] = {group, units: {単位: 合計値}, recipes: [{name, qty, unit, srv}]}
+  const agg = aggregateIngredients(pool);
+  const grouped={};
+  Object.values(agg).forEach(item=>{
+    if(!grouped[item.group])grouped[item.group]=[];
+    grouped[item.group].push(item);
+  });
+  const order=['meat','fish','veg','mush','egg','bean','rice','bouillon','oil','season','other'];
+  grid.innerHTML=order.filter(g=>grouped[g]).map(g=>{
+    const gInfo=SHOP_GROUPS[g];
+    const items=grouped[g].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return`<div class="shop-group">
+      <h4><span class="em">${gInfo.emoji}</span>${gInfo.label}</h4>
+      ${items.map(it=>{
+        const key=`s_${g}_${it.name}`;
+        const chk=checkedItems[key]?'checked':'';
+        const cls=checkedItems[key]?'shop-checked':'';
+        // ツールチップ: どの料理に何使うか
+        const tipText=it.recipes.map(rc=>`${rc.name}(${rc.qty}${rc.unit}×${rc.srv}人)`).join('、');
+        // 表示用: 単位ごとに合算
+        const qtyDisplay = formatAggregated(it.units);
+        return`<div class="shop-item">
+          <input type="checkbox" class="shop-cb" id="${key}" ${chk} onchange="toggleCk('${key}',this)">
+          <label class="shop-iname ${cls}" for="${key}" title="${tipText}">${it.name}</label>
+          <span class="shop-amt">${qtyDisplay}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  footer.style.display='flex';
+  document.getElementById('shop-footer-info').textContent=`${pool.length}品の献立 / 食材 ${Object.keys(agg).length}品目`;
+}
+
+/* 料理ごとの人数調整 */
+function adjRecipeSrv(id,d){
+  const cur=recipeServings[id]||customSrv;
+  const next=Math.max(1,Math.min(20,cur+d));
+  if(next===customSrv){
+    // デフォルトと同じになったら個別設定をクリア（バッジ表示用）
+    delete recipeServings[id];
+  }else{
+    recipeServings[id]=next;
+  }
+  renderShop();
+}
+
+function removeRecipe(id){
+  selectedRecipes.delete(id);
+  delete recipeServings[id];
+  renderShop();
+}
+
+function toggleCk(key,cb){
+  checkedItems[key]=cb.checked;
+  const lbl=cb.nextElementSibling;
+  if(lbl)lbl.classList.toggle('shop-checked',cb.checked);
+}
+
+function resetChecked(){
+  checkedItems={};
+  renderShop();
+}
+
+function copyShopList(){
+  const text=buildShopListText();
+  navigator.clipboard.writeText(text).then(()=>{
+    alert('買い物リストをクリップボードにコピーしました');
+  }).catch(()=>{
+    alert('コピーに失敗しました。手動で選択してください。');
+  });
+}
+
+/* 買い物リストのテキスト版を生成（共有・コピー共通） */
+function buildShopListText(){
+  const pool=getAllRecipes().filter(r=>selectedRecipes.has(r.id));
+  const agg={};
+  pool.forEach(r=>r.ing.forEach(i=>{
+    if(!agg[i])agg[i]={name:i,group:catIngr(i)};
+  }));
+  const grouped={};
+  Object.values(agg).forEach(it=>{
+    if(!grouped[it.group])grouped[it.group]=[];
+    grouped[it.group].push(it.name);
+  });
+  const order=['meat','fish','veg','mush','egg','bean','rice','bouillon','oil','season','other'];
+  const today=new Date();
+  const d=`${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+  const lines=[`■ 買い物リスト (${d})`,`献立 ${pool.length}品 / ${customSrv}人分`,''];
+  lines.push('【献立】');
+  // カテゴリ別に献立列挙
+  const catOrder=['washoku','chuka','yoshoku','rice','soup','side','other'];
+  catOrder.forEach(c=>{
+    const list=pool.filter(r=>getRecipeCat(r)===c);
+    if(list.length){
+      lines.push(`  ${CATS[c].label}: ${list.map(r=>getRecipeName(r).replace(/（時季）|（夏季）/,'').trim()).join('、')}`);
+    }
+  });
+  lines.push('');
+  lines.push('【買うもの】');
+  order.filter(g=>grouped[g]).forEach(g=>{
+    lines.push(`  ◆ ${SHOP_GROUPS[g].label}`);
+    grouped[g].sort((a,b)=>a.localeCompare(b,'ja')).forEach(n=>lines.push(`    □ ${n}`));
+  });
+  return lines.join('\n');
+}
+
+
+/* 印刷/PDF用ビューを別ウィンドウで開く */
+function openPrintView(){
+  if(!selectedRecipes.size){alert('献立を選択してください');return;}
+  const pool=getAllRecipes().filter(r=>selectedRecipes.has(r.id));
+  // 食材集約（料理ごとの人数を考慮、分量計算）
+  const agg = aggregateIngredients(pool);
+  const grouped={};
+  Object.values(agg).forEach(it=>{
+    if(!grouped[it.group])grouped[it.group]=[];
+    grouped[it.group].push(it);
+  });
+  const groupOrder=['meat','fish','veg','mush','egg','bean','rice','bouillon','oil','season','other'];
+  const catOrder=['washoku','chuka','yoshoku','rice','soup','side','other'];
+
+  const today=new Date();
+  const dateStr=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+
+  // 上半分: 献立（カテゴリ別、人数・メモ付き）
+  const menuHTML=catOrder.filter(c=>pool.some(r=>getRecipeCat(r)===c)).map(c=>{
+    const list=pool.filter(r=>getRecipeCat(r)===c).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return`<div class="p-menu-cat">
+      <h3>${CATS[c].label}<span class="p-cnt">${list.length}</span></h3>
+      <ul>${list.map(r=>{
+        const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
+        const srv=recipeServings[r.id]||customSrv;
+        const memo=recipeMemos[r.id]||'';
+        const memoHTML=memo?`<div class="p-menu-memo">${escapeHTML(memo)}</div>`:'';
+        return`<li>
+          <div class="p-menu-line">
+            <span class="p-menu-name">${dispName}</span>
+            <span class="p-menu-srv">${srv}人分</span>
+          </div>
+          ${memoHTML}
+        </li>`;
+      }).join('')}</ul>
+    </div>`;
+  }).join('');
+
+  // 下半分: 食材（合算分量併記）
+  const ingHTML=groupOrder.filter(g=>grouped[g]).map(g=>{
+    const items=grouped[g].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+    return`<div class="p-ing-cat">
+      <h4>${SHOP_GROUPS[g].label}</h4>
+      <ul>${items.map(it=>{
+        const qtyDisp = formatAggregated(it.units);
+        return`<li><span class="p-chk">☐</span> ${it.name}<span class="p-ing-srv">${qtyDisp}</span></li>`;
+      }).join('')}</ul>
+    </div>`;
+  }).join('');
+
+  const totalIng=Object.keys(agg).length;
+
+  const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>買い物リスト ${dateStr}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:#1F1A14;background:#fff;padding:14mm 12mm;font-size:11pt;line-height:1.55}
+.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1F1A14;padding-bottom:8px;margin-bottom:14px}
+.head h1{font-size:18pt;font-weight:600;letter-spacing:.04em}
+.head .meta{font-size:9.5pt;color:#555;text-align:right}
+.head .meta div{margin-top:2px}
+.section-bar{
+  background:#1F1A14;color:#fff;padding:5px 12px;font-size:11pt;
+  font-weight:600;letter-spacing:.08em;margin:14px 0 8px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.section-bar .sub{font-weight:400;font-size:9pt;opacity:.8}
+.menu-area{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;
+  padding:0 4px;
+}
+.p-menu-cat{break-inside:avoid;margin-bottom:8px}
+.p-menu-cat h3{
+  font-size:10.5pt;font-weight:600;color:#6B523A;
+  border-bottom:1px solid #8B6F47;padding-bottom:2px;margin-bottom:4px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.p-menu-cat h3 .p-cnt{font-size:8.5pt;color:#999;font-weight:400}
+.p-menu-cat ul{list-style:none}
+.p-menu-cat li{
+  font-size:10pt;padding:3px 0;border-bottom:1px dotted #e5e5e5;
+}
+.p-menu-cat li:last-child{border-bottom:none}
+.p-menu-line{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.p-menu-name{position:relative;padding-left:10px;flex:1}
+.p-menu-name::before{content:'・';position:absolute;left:0;color:#8B6F47}
+.p-menu-srv{
+  font-size:8.5pt;color:#6B523A;font-weight:600;flex-shrink:0;
+  background:#F0E7D6;padding:1px 6px;border-radius:2px;letter-spacing:.04em;
+}
+.p-menu-memo{
+  font-size:8.5pt;color:#555;padding:2px 0 0 14px;line-height:1.4;
+  font-style:italic;letter-spacing:.02em;
+}
+.p-menu-memo::before{content:'📝 ';font-style:normal;color:#8B6F47}
+.ing-area{
+  column-count:3;column-gap:14px;column-rule:1px dotted #ccc;
+  padding:0 4px;
+}
+.p-ing-cat{break-inside:avoid;margin-bottom:10px;page-break-inside:avoid}
+.p-ing-cat h4{
+  font-size:10pt;font-weight:600;color:#fff;
+  background:#5C7853;padding:2px 8px;border-radius:2px;
+  margin-bottom:3px;letter-spacing:.05em;
+}
+.p-ing-cat ul{list-style:none}
+.p-ing-cat li{
+  font-size:9.5pt;padding:2px 0 2px 4px;
+  border-bottom:1px dotted #ddd;line-height:1.4;
+  display:flex;justify-content:space-between;align-items:baseline;
+}
+.p-chk{display:inline-block;width:13px;color:#8B6F47;font-size:11pt;flex-shrink:0}
+.p-ing-srv{font-size:8.5pt;color:#6B523A;font-family:'Noto Sans JP',sans-serif;font-weight:600;flex-shrink:0;margin-left:6px}
+.foot{
+  margin-top:18px;padding-top:8px;border-top:1px solid #ccc;
+  font-size:8.5pt;color:#888;text-align:center;letter-spacing:.06em;
+}
+.no-print{
+  position:fixed;top:10px;right:10px;display:flex;gap:6px;z-index:99;
+}
+.no-print button{
+  background:#1F1A14;color:#fff;border:none;padding:8px 14px;font-size:10pt;
+  border-radius:4px;cursor:pointer;font-family:inherit;
+}
+.no-print button.alt{background:#fff;color:#1F1A14;border:1px solid #1F1A14}
+@media print{
+  .no-print{display:none}
+  body{padding:10mm 8mm}
+  @page{size:A4;margin:0}
+}
+</style></head><body>
+<div class="no-print">
+  <button onclick="window.print()">🖨️ 印刷 / PDFで保存</button>
+  <button class="alt" onclick="window.close()">閉じる</button>
+</div>
+<div class="head">
+  <h1>買い物リスト</h1>
+  <div class="meta">
+    <div>${dateStr}</div>
+    <div>献立 ${pool.length}品 / 食材 ${totalIng}品目</div>
+  </div>
+</div>
+
+<div class="section-bar">
+  <span>■ 献立</span>
+  <span class="sub">${pool.length} 品 ／ 人数は料理ごと</span>
+</div>
+<div class="menu-area">${menuHTML}</div>
+
+<div class="section-bar">
+  <span>■ 用意する食材</span>
+  <span class="sub">${totalIng} 品目 ／ 無添加・天然素材で</span>
+</div>
+<div class="ing-area">${ingHTML}</div>
+
+<div class="foot">
+  <div>Yukiko's Kitchen</div>
+</div>
+<scr`+`ipt>
+window.addEventListener('load',()=>setTimeout(()=>window.print(),400));
+</scr`+`ipt>
+</body></html>`;
+
+  const w=window.open('','_blank');
+  if(!w){alert('ポップアップがブロックされました。許可してください。');return;}
+  w.document.write(html);
+  w.document.close();
+}
+
+/* HTML エスケープ */
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* 共有 (Web Share API → 非対応ならコピー) */
+function shareList(){
+  if(!selectedRecipes.size){alert('献立を選択してください');return;}
+  const text=buildShopListText();
+  const today=new Date();
+  const title=`買い物リスト ${today.getMonth()+1}/${today.getDate()}`;
+  if(navigator.share){
+    navigator.share({title,text}).catch(err=>{
+      if(err.name!=='AbortError')fallbackShare(text);
+    });
+  }else{
+    fallbackShare(text);
+  }
+}
+
+function fallbackShare(text){
+  navigator.clipboard.writeText(text).then(()=>{
+    alert('お使いのブラウザは共有メニューに対応していないため、テキストをクリップボードにコピーしました。LINEやメールに貼り付けてください。');
+  }).catch(()=>{
+    alert('コピーに失敗しました');
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════ */
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20));
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('DOMContentLoaded',()=>{
+  const totalEl=document.getElementById('stat-total');
+  if(totalEl)totalEl.textContent=RECIPES.length;
+  renderCustomSelector();
+});
+</script>
+</body>
+</html>
