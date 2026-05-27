@@ -1086,6 +1086,51 @@ let userRecipeCats={};   // {recipeId: 'カテゴリキー'}  ※既存レシピ
 let customRecipes=[];    // ユーザーが追加したレシピ {id, name, cat, ing}
 let nextCustomId=10001;  // カスタムレシピのID（既存と衝突しないよう10000以上）
 
+/* ─── localStorage永続化 ─── */
+const STORAGE_KEY = 'yukikoKitchen_v1';
+
+function saveAll(){
+  try {
+    const data = {
+      checkedItems,
+      recipeMemos,
+      recipeServings,
+      userAmounts,
+      userRecipeNames,
+      userRecipeCats,
+      customRecipes,
+      nextCustomId,
+      favorites: Array.from(favorites),
+      selectedRecipes: Array.from(selectedRecipes),
+      customSrv,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    console.warn('保存失敗:', e);
+  }
+}
+
+function loadAll(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(d.checkedItems) checkedItems = d.checkedItems;
+    if(d.recipeMemos) recipeMemos = d.recipeMemos;
+    if(d.recipeServings) recipeServings = d.recipeServings;
+    if(d.userAmounts) userAmounts = d.userAmounts;
+    if(d.userRecipeNames) userRecipeNames = d.userRecipeNames;
+    if(d.userRecipeCats) userRecipeCats = d.userRecipeCats;
+    if(Array.isArray(d.customRecipes)) customRecipes = d.customRecipes;
+    if(typeof d.nextCustomId === 'number') nextCustomId = d.nextCustomId;
+    if(Array.isArray(d.favorites)) favorites = new Set(d.favorites);
+    if(Array.isArray(d.selectedRecipes)) selectedRecipes = new Set(d.selectedRecipes);
+    if(typeof d.customSrv === 'number') customSrv = d.customSrv;
+  } catch(e) {
+    console.warn('読み込み失敗:', e);
+  }
+}
+
 /* お気に入りはlocalStorage的ストレージなしで保持(セッション内) */
 
 /* ═══════════════════════════════════════════════════════
@@ -1185,6 +1230,7 @@ function applyFilter(){
 function toggleFav(id,btn){
   if(favorites.has(id)){favorites.delete(id);btn.classList.remove('on');}
   else{favorites.add(id);btn.classList.add('on');}
+  saveAll();
   if(currentPage==='fav')renderFav();
 }
 
@@ -1306,6 +1352,7 @@ function openModal(id){
 function toggleFavModal(id){
   if(favorites.has(id))favorites.delete(id);
   else favorites.add(id);
+  saveAll();
   openModal(id); // モーダル再描画
   // 背面ページも更新
   if(currentPage==='select')renderCustomSelector();
@@ -1323,6 +1370,7 @@ function saveMemo(id,val){
   }else{
     delete recipeMemos[id];
   }
+  saveAll();
 }
 
 /* ─── 食材編集 ─── */
@@ -1392,11 +1440,13 @@ function updateIng(rid, idx, field, val){
     row[1] = isNaN(num) ? val : num;
   }
   else if(field==='unit') row[2] = val;
+  saveAll();
 }
 
 function addIngRow(rid){
   if(!userAmounts[rid]) userAmounts[rid] = getCurrentIngs(rid);
   userAmounts[rid].push(['','','g']);
+  saveAll();
   // モーダル再描画
   openModal(rid);
 }
@@ -1404,12 +1454,14 @@ function addIngRow(rid){
 function removeIngRow(rid, idx){
   if(!userAmounts[rid]) userAmounts[rid] = getCurrentIngs(rid);
   userAmounts[rid].splice(idx, 1);
+  saveAll();
   openModal(rid);
 }
 
 function resetIngredients(rid){
   if(!confirm('この料理の食材を基準量に戻しますか？編集内容は失われます。'))return;
   delete userAmounts[rid];
+  saveAll();
   openModal(rid);
 }
 
@@ -1435,6 +1487,7 @@ function editRecipeName(rid){
       userRecipeNames[rid] = trimmed;
     }
   }
+  saveAll();
   openModal(rid);
   // 背面ページも更新
   if(currentPage==='select')renderCustomSelector();
@@ -1454,6 +1507,7 @@ function deleteCustomRecipe(rid){
   delete recipeMemos[rid];
   delete userAmounts[rid];
   delete userRecipeNames[rid];
+  saveAll();
   closeModal();
   if(currentPage==='select')renderCustomSelector();
   if(currentPage==='fav')renderFav();
@@ -1472,6 +1526,7 @@ function changeRecipeCat(rid, newCat){
       userRecipeCats[rid] = newCat;
     }
   }
+  saveAll();
   if(currentPage==='select')renderCustomSelector();
   if(currentPage==='fav')renderFav();
 }
@@ -1494,6 +1549,7 @@ function addNewRecipe(){
   };
   customRecipes.push(newRecipe);
   userAmounts[newId] = [['', '', 'g']]; // 空の食材1行
+  saveAll();
   openModal(newId);
   if(currentPage==='select')renderCustomSelector();
 }
@@ -1586,6 +1642,7 @@ function toggleFavSel(id, btn){
     favorites.add(id);
     btn.classList.add('on');
   }
+  saveAll();
 }
 
 function toggleCatCollapse(k){
@@ -1601,6 +1658,7 @@ function toggleCatAll(k){
     if(allSel)selectedRecipes.delete(r.id);
     else selectedRecipes.add(r.id);
   });
+  saveAll();
   renderCustomSelector();
 }
 
@@ -1613,6 +1671,7 @@ function expandAllCats(expand){
 function onRecipeSel(id,cb){
   if(cb.checked)selectedRecipes.add(id);
   else selectedRecipes.delete(id);
+  saveAll();
   const row=cb.closest('.sel-row');
   if(row)row.classList.toggle('sel-on',cb.checked);
   // カウント更新（カテゴリヘッダーも）
@@ -1627,6 +1686,7 @@ function updateSelCount(){
 
 function clearSelection(){
   selectedRecipes.clear();
+  saveAll();
   renderCustomSelector();
 }
 
@@ -1636,6 +1696,7 @@ function clearSelection(){
 function adjSrv(d){
   customSrv=Math.max(1,Math.min(20,customSrv+d));
   document.getElementById('srv-disp').textContent=customSrv;
+  saveAll();
   renderShop();
 }
 
@@ -1839,23 +1900,27 @@ function adjRecipeSrv(id,d){
   }else{
     recipeServings[id]=next;
   }
+  saveAll();
   renderShop();
 }
 
 function removeRecipe(id){
   selectedRecipes.delete(id);
   delete recipeServings[id];
+  saveAll();
   renderShop();
 }
 
 function toggleCk(key,cb){
   checkedItems[key]=cb.checked;
+  saveAll();
   const lbl=cb.nextElementSibling;
   if(lbl)lbl.classList.toggle('shop-checked',cb.checked);
 }
 
 function resetChecked(){
   checkedItems={};
+  saveAll();
   renderShop();
 }
 
@@ -2105,8 +2170,12 @@ function fallbackShare(text){
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20));
 window.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 document.addEventListener('DOMContentLoaded',()=>{
+  loadAll();  // 保存済みデータを読み込み
   const totalEl=document.getElementById('stat-total');
   if(totalEl)totalEl.textContent=RECIPES.length;
+  // デフォルト人数の表示も復元
+  const srvDisp=document.getElementById('srv-disp');
+  if(srvDisp)srvDisp.textContent=customSrv;
   renderCustomSelector();
 });
 </script>
