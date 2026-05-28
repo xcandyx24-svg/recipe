@@ -2015,7 +2015,12 @@ function openPrintView(){
       allItems.push(it);
     });
   });
-  const ingHTML = allItems.map(it=>{
+  // 3列に分割（上から下、左から右の順）
+  const perCol = Math.ceil(allItems.length / 3);
+  const col1 = allItems.slice(0, perCol);
+  const col2 = allItems.slice(perCol, perCol * 2);
+  const col3 = allItems.slice(perCol * 2);
+  const renderCol = (items) => items.map(it=>{
     const qtyDisp = formatAggregated(it.units);
     return`<div class="p-ing-item">
       <span class="p-chk">☐</span>
@@ -2023,6 +2028,11 @@ function openPrintView(){
       <span class="p-ing-qty">(${qtyDisp})</span>
     </div>`;
   }).join('');
+  const ingHTML = `
+    <div class="p-ing-col">${renderCol(col1)}</div>
+    <div class="p-ing-col">${renderCol(col2)}</div>
+    <div class="p-ing-col">${renderCol(col3)}</div>
+  `;
 
   const totalIng=Object.keys(agg).length;
 
@@ -2082,8 +2092,13 @@ body{
 }
 
 .ing-area{
-  column-count:3;column-gap:18px;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:0 18px;
   padding-left:4px;
+}
+.p-ing-col{
+  display:flex;flex-direction:column;
 }
 .p-ing-item{
   break-inside:avoid;display:flex;align-items:baseline;
