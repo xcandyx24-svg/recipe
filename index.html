@@ -1985,36 +1985,42 @@ function openPrintView(){
   const today=new Date();
   const dateStr=`${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
 
-  // 上半分: 献立（カテゴリ別、人数・メモ付き）
+  // 上半分: 献立リスト（料理名 + 人数 + 使用食材）
   const menuHTML=catOrder.filter(c=>pool.some(r=>getRecipeCat(r)===c)).map(c=>{
     const list=pool.filter(r=>getRecipeCat(r)===c).sort((a,b)=>a.name.localeCompare(b.name,'ja'));
-    return`<div class="p-menu-cat">
-      <h3>${CATS[c].label}<span class="p-cnt">${list.length}</span></h3>
-      <ul>${list.map(r=>{
-        const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
-        const srv=recipeServings[r.id]||customSrv;
-        const memo=recipeMemos[r.id]||'';
-        const memoHTML=memo?`<div class="p-menu-memo">${escapeHTML(memo)}</div>`:'';
-        return`<li>
-          <div class="p-menu-line">
-            <span class="p-menu-name">${dispName}</span>
-            <span class="p-menu-srv">${srv}人分</span>
-          </div>
-          ${memoHTML}
-        </li>`;
-      }).join('')}</ul>
-    </div>`;
+    return list.map(r=>{
+      const dispName=getRecipeName(r).replace(/（時季）|（夏季）/,'').trim();
+      const srv=recipeServings[r.id]||customSrv;
+      const memo=recipeMemos[r.id]||'';
+      const memoHTML=memo?`<div class="p-menu-memo">${escapeHTML(memo)}</div>`:'';
+      // この料理の食材リスト
+      const ingRows = getCurrentIngs(r.id);
+      const ingNames = ingRows.map(a=>a[0]).filter(n=>n && String(n).trim());
+      const ingDisp = ingNames.length ? `<div class="p-menu-ings">${escapeHTML(ingNames.join(' / '))}</div>` : '';
+      return`<div class="p-menu-item">
+        <div class="p-menu-line">
+          <span class="p-menu-name">・${dispName}</span>
+          <span class="p-menu-srv">${srv}人分</span>
+        </div>
+        ${ingDisp}
+        ${memoHTML}
+      </div>`;
+    }).join('');
   }).join('');
 
-  // 下半分: 食材（合算分量併記）
-  const ingHTML=groupOrder.filter(g=>grouped[g]).map(g=>{
-    const items=grouped[g].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
-    return`<div class="p-ing-cat">
-      <h4>${SHOP_GROUPS[g].label}</h4>
-      <ul>${items.map(it=>{
-        const qtyDisp = formatAggregated(it.units);
-        return`<li><span class="p-chk">☐</span> ${it.name}<span class="p-ing-srv">${qtyDisp}</span></li>`;
-      }).join('')}</ul>
+  // 下半分: 食材リスト（チェックボックス、分量併記、3列）
+  const allItems = [];
+  groupOrder.filter(g=>grouped[g]).forEach(g=>{
+    grouped[g].sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(it=>{
+      allItems.push(it);
+    });
+  });
+  const ingHTML = allItems.map(it=>{
+    const qtyDisp = formatAggregated(it.units);
+    return`<div class="p-ing-item">
+      <span class="p-chk">☐</span>
+      <span class="p-ing-name">${it.name}</span>
+      <span class="p-ing-qty">(${qtyDisp})</span>
     </div>`;
   }).join('');
 
@@ -2023,78 +2029,86 @@ function openPrintView(){
   const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>買い物リスト ${dateStr}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-body{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:#1F1A14;background:#fff;padding:14mm 12mm;font-size:11pt;line-height:1.55}
-.head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1F1A14;padding-bottom:8px;margin-bottom:14px}
-.head h1{font-size:18pt;font-weight:600;letter-spacing:.04em}
-.head .meta{font-size:9.5pt;color:#555;text-align:right}
-.head .meta div{margin-top:2px}
-.section-bar{
-  background:#1F1A14;color:#fff;padding:5px 12px;font-size:11pt;
-  font-weight:600;letter-spacing:.08em;margin:14px 0 8px;
-  display:flex;justify-content:space-between;align-items:center;
+body{
+  font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;
+  color:#111;background:#fff;padding:16mm 14mm;
+  font-size:14pt;line-height:1.7;
 }
-.section-bar .sub{font-weight:400;font-size:9pt;opacity:.8}
+.title{
+  text-align:center;font-size:19pt;font-weight:700;
+  letter-spacing:.02em;margin-bottom:6px;
+}
+.title-note{
+  text-align:center;font-size:14pt;font-weight:600;
+  color:#000;margin-bottom:8px;letter-spacing:.02em;
+}
+.subtitle{
+  text-align:center;font-size:12.5pt;color:#000;
+  margin-bottom:18px;
+}
+.section-h{
+  display:flex;align-items:center;gap:8px;
+  font-size:16pt;font-weight:700;margin:18px 0 10px;
+  border-left:5px solid #111;padding-left:8px;
+}
+.section-h::before{content:'■';font-size:13pt}
 .menu-area{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:8px 18px;
-  padding:0 4px;
+  padding-left:8px;
 }
-.p-menu-cat{break-inside:avoid;margin-bottom:8px}
-.p-menu-cat h3{
-  font-size:10.5pt;font-weight:600;color:#6B523A;
-  border-bottom:1px solid #8B6F47;padding-bottom:2px;margin-bottom:4px;
-  display:flex;justify-content:space-between;align-items:center;
+.p-menu-item{
+  margin-bottom:8px;
+  page-break-inside:avoid;
 }
-.p-menu-cat h3 .p-cnt{font-size:8.5pt;color:#999;font-weight:400}
-.p-menu-cat ul{list-style:none}
-.p-menu-cat li{
-  font-size:10pt;padding:3px 0;border-bottom:1px dotted #e5e5e5;
+.p-menu-line{
+  display:flex;justify-content:space-between;align-items:baseline;gap:6px;
+  font-size:14.5pt;font-weight:600;
 }
-.p-menu-cat li:last-child{border-bottom:none}
-.p-menu-line{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
-.p-menu-name{position:relative;padding-left:10px;flex:1}
-.p-menu-name::before{content:'・';position:absolute;left:0;color:#8B6F47}
+.p-menu-name{flex:1}
 .p-menu-srv{
-  font-size:8.5pt;color:#6B523A;font-weight:600;flex-shrink:0;
-  background:#F0E7D6;padding:1px 6px;border-radius:2px;letter-spacing:.04em;
+  font-size:12pt;font-weight:400;color:#000;flex-shrink:0;
 }
 .p-menu-memo{
-  font-size:8.5pt;color:#555;padding:2px 0 0 14px;line-height:1.4;
-  font-style:italic;letter-spacing:.02em;
+  font-size:12pt;color:#000;padding:2px 0 0 14px;line-height:1.5;
 }
-.p-menu-memo::before{content:'📝 ';font-style:normal;color:#8B6F47}
+.p-menu-memo::before{content:'';font-size:11pt}
+.p-menu-ings{
+  font-size:12pt;color:#000;padding:2px 0 0 14px;line-height:1.5;
+  letter-spacing:.02em;
+}
+.p-menu-ings::before{content:'食材: ';color:#000;font-size:11.5pt}
+
+.divider{
+  border-top:2px solid #111;margin:20px 0 18px;
+}
+
 .ing-area{
-  column-count:3;column-gap:14px;column-rule:1px dotted #ccc;
-  padding:0 4px;
+  column-count:3;column-gap:18px;
+  padding-left:4px;
 }
-.p-ing-cat{break-inside:avoid;margin-bottom:10px;page-break-inside:avoid}
-.p-ing-cat h4{
-  font-size:10pt;font-weight:600;color:#fff;
-  background:#5C7853;padding:2px 8px;border-radius:2px;
-  margin-bottom:3px;letter-spacing:.05em;
+.p-ing-item{
+  break-inside:avoid;display:flex;align-items:baseline;
+  font-size:13pt;padding:3px 0;gap:4px;
+  border-bottom:1px dotted #ddd;
 }
-.p-ing-cat ul{list-style:none}
-.p-ing-cat li{
-  font-size:9.5pt;padding:2px 0 2px 4px;
-  border-bottom:1px dotted #ddd;line-height:1.4;
-  display:flex;justify-content:space-between;align-items:baseline;
+.p-ing-item:last-child{border-bottom:none}
+.p-chk{font-size:14pt;flex-shrink:0;color:#000}
+.p-ing-name{flex:1;line-height:1.4}
+.p-ing-qty{
+  font-size:11.5pt;color:#000;flex-shrink:0;
+  font-family:'Cormorant Garamond','Hiragino Sans',sans-serif;
 }
-.p-chk{display:inline-block;width:13px;color:#8B6F47;font-size:11pt;flex-shrink:0}
-.p-ing-srv{font-size:8.5pt;color:#6B523A;font-family:'Noto Sans JP',sans-serif;font-weight:600;flex-shrink:0;margin-left:6px}
-.foot{
-  margin-top:18px;padding-top:8px;border-top:1px solid #ccc;
-  font-size:8.5pt;color:#888;text-align:center;letter-spacing:.06em;
-}
+
 .no-print{
   position:fixed;top:10px;right:10px;display:flex;gap:6px;z-index:99;
 }
 .no-print button{
-  background:#1F1A14;color:#fff;border:none;padding:8px 14px;font-size:10pt;
+  background:#111;color:#fff;border:none;padding:8px 14px;font-size:10pt;
   border-radius:4px;cursor:pointer;font-family:inherit;
 }
-.no-print button.alt{background:#fff;color:#1F1A14;border:1px solid #1F1A14}
+.no-print button.alt{background:#fff;color:#111;border:1px solid #111}
 @media print{
   .no-print{display:none}
-  body{padding:10mm 8mm}
+  body{padding:10mm 10mm}
   @page{size:A4;margin:0}
 }
 </style></head><body>
@@ -2102,29 +2116,19 @@ body{font-family:'Hiragino Mincho ProN','Yu Mincho',serif;color:#1F1A14;backgrou
   <button onclick="window.print()">🖨️ 印刷 / PDFで保存</button>
   <button class="alt" onclick="window.close()">閉じる</button>
 </div>
-<div class="head">
-  <h1>買い物リスト</h1>
-  <div class="meta">
-    <div>${dateStr}</div>
-    <div>献立 ${pool.length}品 / 食材 ${totalIng}品目</div>
-  </div>
-</div>
 
-<div class="section-bar">
-  <span>■ 献立</span>
-  <span class="sub">${pool.length} 品 ／ 人数は料理ごと</span>
-</div>
+<h1 class="title">献立と買い物リスト</h1>
+<div class="title-note">（調味料は必要最低限で、薄味！！！）</div>
+<div class="subtitle">献立 ${pool.length}品 ／ 食材 ${totalIng}品目</div>
+
+<div class="section-h">メニュー</div>
 <div class="menu-area">${menuHTML}</div>
 
-<div class="section-bar">
-  <span>■ 用意する食材</span>
-  <span class="sub">${totalIng} 品目 ／ 無添加・天然素材で</span>
-</div>
+<div class="divider"></div>
+
+<div class="section-h">買い物リスト</div>
 <div class="ing-area">${ingHTML}</div>
 
-<div class="foot">
-  <div>Yukiko's Kitchen</div>
-</div>
 <scr`+`ipt>
 window.addEventListener('load',()=>setTimeout(()=>window.print(),400));
 </scr`+`ipt>
